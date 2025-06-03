@@ -11,8 +11,10 @@ const PORT = process.env.PORT || 3000;
 const DIST_DIR = path.join(__dirname, 'dist');
 
 console.log('🚀 Starting Planix 3D Landing Page server...');
+console.log('🔧 Environment PORT:', process.env.PORT);
+console.log('🔧 Using PORT:', PORT);
 console.log('📁 Dist directory:', DIST_DIR);
-console.log('🌐 Port:', PORT);
+console.log('🌐 Server will listen on port:', PORT);
 
 // Check if dist directory exists
 if (!fs.existsSync(DIST_DIR)) {
@@ -104,9 +106,12 @@ app.use((err, req, res, next) => {
 // Start server
 const server = app.listen(PORT, '0.0.0.0', () => {
   console.log(`✅ Server running successfully!`);
-  console.log(`🌐 URL: http://0.0.0.0:${PORT}`);
+  console.log(`🌐 Local URL: http://localhost:${PORT}`);
+  console.log(`🌐 Container URL: http://0.0.0.0:${PORT}`);
   console.log(`🏥 Health check: http://0.0.0.0:${PORT}/health`);
   console.log(`📁 Serving from: ${DIST_DIR}`);
+  console.log(`🔧 NODE_ENV: ${process.env.NODE_ENV}`);
+  console.log(`🔧 Railway PORT: ${process.env.PORT}`);
   
   // List files in dist
   try {
