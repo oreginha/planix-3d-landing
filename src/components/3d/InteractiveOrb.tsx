@@ -1,12 +1,12 @@
 import React, { useRef } from 'react'
 import { useFrame } from '@react-three/fiber'
 import { MeshDistortMaterial, Float } from '@react-three/drei'
-import { Mesh, Vector3 } from 'three'
+import { Mesh } from 'three'
 import type { InteractiveOrbProps } from '@/types'
 
 const InteractiveOrb: React.FC<InteractiveOrbProps> = ({ 
   scrollProgress, 
-  position = new Vector3(0, 0, 0),
+  position = [0, 0, 0],
   scale = 1,
   color = '#0066FF'
 }) => {
@@ -26,8 +26,8 @@ const InteractiveOrb: React.FC<InteractiveOrbProps> = ({
       orbRef.current.scale.setScalar(scaleValue)
       
       // Position changes based on scroll
-      orbRef.current.position.y = position.y + Math.sin(scrollProgress * Math.PI * 2) * 2
-      orbRef.current.position.x = position.x + Math.cos(time * 0.2) * 0.5
+      orbRef.current.position.y = position[1] + Math.sin(scrollProgress * Math.PI * 2) * 2
+      orbRef.current.position.x = position[0] + Math.cos(time * 0.2) * 0.5
       
       // Material distortion based on scroll
       const material = orbRef.current.material as any
@@ -47,7 +47,7 @@ const InteractiveOrb: React.FC<InteractiveOrbProps> = ({
   })
 
   return (
-    <group position={[position.x, position.y, position.z]}>
+    <group position={position}>
       {/* Main Orb */}
       <Float
         speed={1}

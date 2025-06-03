@@ -82,7 +82,6 @@ const App: React.FC = () => {
               />
               <FloatingElements 
                 mousePosition={mousePosition} 
-                count={5}
               />
               <InteractiveOrb 
                 scrollProgress={scrollProgress} 

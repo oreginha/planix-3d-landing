@@ -18,6 +18,12 @@ export interface IntersectionOptions {
   triggerOnce?: boolean
 }
 
+export interface IntersectionObserverConfig {
+  threshold?: number | number[]
+  rootMargin?: string
+  triggerOnce?: boolean
+}
+
 export interface IntersectionResult {
   hasIntersected: boolean
   isIntersecting: boolean
@@ -38,6 +44,8 @@ export interface ParticleSystemProps {
   count?: number
   size?: number
   speed?: number
+  color?: string
+  opacity?: number
 }
 
 export interface FloatingElementsProps {
@@ -46,6 +54,9 @@ export interface FloatingElementsProps {
 
 export interface InteractiveOrbProps {
   scrollProgress: number
+  position?: [number, number, number]
+  scale?: number
+  color?: string
 }
 
 // Team Member
@@ -71,7 +82,18 @@ export interface Project {
   technologies: string[]
   liveUrl?: string
   githubUrl?: string
-  category: 'web' | 'mobile' | '3d' | 'ecommerce'
+  category: 'web' | 'mobile' | '3d' | 'ecommerce' | 'app'
+}
+
+export interface ProjectItem {
+  id: string
+  title: string
+  description: string
+  image: string
+  technologies: string[]
+  liveUrl?: string
+  githubUrl?: string
+  category: 'web' | 'mobile' | '3d' | 'ecommerce' | 'app'
 }
 
 // Service
@@ -83,6 +105,15 @@ export interface Service {
   features: string[]
 }
 
+export interface ServiceItem {
+  id: string
+  title: string
+  description: string
+  icon: string
+  features: string[]
+  color: string
+}
+
 // Technology
 export interface Technology {
   id: string
@@ -90,6 +121,16 @@ export interface Technology {
   category: 'frontend' | 'backend' | '3d' | 'tools'
   proficiency: number
   icon: string
+  description: string
+}
+
+export interface TechnologyItem {
+  id: string
+  name: string
+  category: 'frontend' | 'backend' | '3d' | 'tools'
+  proficiency: number
+  icon: string
+  description: string
 }
 
 // Contact Form
@@ -100,6 +141,15 @@ export interface ContactFormData {
   budget: 'small' | 'medium' | 'large' | 'enterprise'
   message: string
   services: string[]
+}
+
+export interface ContactForm {
+  name: string
+  email: string
+  company?: string
+  budget: string
+  timeline: string
+  message: string
 }
 
 // Animation Variants (Framer Motion)
