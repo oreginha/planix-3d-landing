@@ -1,0 +1,28 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" width="200" height="200">
+  <defs>
+    <linearGradient id="logoGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#0066FF;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#00D4FF;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  
+  <!-- Background Circle -->
+  <circle cx="100" cy="100" r="90" fill="url(#logoGradient)" opacity="0.1"/>
+  
+  <!-- Main P Shape -->
+  <path d="M60 60 L60 140 L90 140 L90 110 L110 110 C125 110 140 95 140 80 C140 65 125 50 110 50 L60 50 Z M90 70 L110 70 C115 70 120 75 120 80 C120 85 115 90 110 90 L90 90 Z" 
+        fill="url(#logoGradient)" 
+        stroke="url(#logoGradient)" 
+        stroke-width="2"/>
+  
+  <!-- Decorative Elements -->
+  <circle cx="150" cy="70" r="3" fill="#00D4FF" opacity="0.8"/>
+  <circle cx="160" cy="90" r="2" fill="#0066FF" opacity="0.6"/>
+  <circle cx="145" cy="110" r="2.5" fill="#00D4FF" opacity="0.7"/>
+  
+  <!-- Tech Lines -->
+  <line x1="50" y1="150" x2="70" y2="150" stroke="url(#logoGradient)" stroke-width="2" opacity="0.5"/>
+  <line x1="130" y1="150" x2="150" y2="150" stroke="url(#logoGradient)" stroke-width="2" opacity="0.5"/>
+  <line x1="50" y1="160" x2="60" y2="160" stroke="url(#logoGradient)" stroke-width="1.5" opacity="0.4"/>
+  <line x1="140" y1="160" x2="150" y2="160" stroke="url(#logoGradient)" stroke-width="1.5" opacity="0.4"/>
+</svg>
