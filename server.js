@@ -26,15 +26,44 @@ if (!fs.existsSync(DIST_DIR)) {
 
 // Middleware for logging
 app.use((req, res, next) => {
-  console.log(`${new Date().toISOString()} - ${req.method} ${req.path}`);
+  console.log(`${new Date().toISOString()} - ${req.method} ${req.path} - ${req.ip}`);
   next();
+});
+
+// Add security headers for Railway
+app.use((req, res, next) => {
+  res.header('X-Powered-By', 'Planix');
+  res.header('Access-Control-Allow-Origin', '*');
+  res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept');
+  next();
+});
+
+// Root health check for Railway
+app.get('/', (req, res) => {
+  const indexPath = path.join(DIST_DIR, 'index.html');
+  if (fs.existsSync(indexPath)) {
+    console.log('✅ Serving index.html from root');
+    res.sendFile(indexPath);
+  } else {
+    console.log('❌ index.html not found at root');
+    res.status(404).json({ 
+      error: 'index.html not found',
+      path: indexPath,
+      exists: false
+    });
+  }
 });
 
 // Serve static files with proper headers
 app.use(express.static(DIST_DIR, {
   maxAge: '1d',
   etag: true,
-  lastModified: true
+  lastModified: true,
+  setHeaders: (res, path) => {
+    if (path.endsWith('.html')) {
+      res.setHeader('Cache-Control', 'no-cache');
+    }
+  }
 }));
 
 // Health check endpoint
@@ -48,16 +77,20 @@ app.get('/health', (req, res) => {
   });
 });
 
-// Handle SPA routing - serve index.html for all routes
+// Handle SPA routing - serve index.html for all other routes
 app.get('*', (req, res) => {
+  console.log(`📍 SPA route requested: ${req.path}`);
   const indexPath = path.join(DIST_DIR, 'index.html');
   if (fs.existsSync(indexPath)) {
+    console.log('✅ Serving index.html for SPA route');
     res.sendFile(indexPath);
   } else {
+    console.log('❌ index.html not found for SPA route');
     res.status(404).json({ 
       error: 'index.html not found',
       path: indexPath,
-      exists: false
+      exists: false,
+      route: req.path
     });
   }
 });
