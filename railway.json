@@ -9,6 +9,10 @@
     "restartPolicyMaxRetries": 10,
     "startCommand": "npm start",
     "healthcheckPath": "/",
-    "healthcheckTimeout": 300
+    "healthcheckTimeout": 300,
+    "variables": {
+      "NODE_ENV": "production",
+      "PORT": "8080"
+    }
   }
 }
