@@ -29,6 +29,7 @@ export default defineConfig({
   build: {
     outDir: 'dist',
     sourcemap: true,
+    target: 'esnext',
     rollupOptions: {
       output: {
         manualChunks: {
@@ -36,6 +37,7 @@ export default defineConfig({
           three: ['three', '@react-three/fiber', '@react-three/drei'],
         },
       },
+      external: [],
     },
   },
   optimizeDeps: {
