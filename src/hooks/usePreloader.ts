@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from 'react'
 import type { LoadingState } from '@/types'
 
-export const usePreloader = (assets: string[] = []): LoadingState => {
+export const usePreloader = (): LoadingState => {
   const [loadingState, setLoadingState] = useState<LoadingState>({
     isLoading: true,
     progress: 0,

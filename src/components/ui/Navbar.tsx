@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react'
-import { Menu, X, Code, Zap, Globe } from 'lucide-react'
+import { Menu, X, Code } from 'lucide-react'
 
 const Navbar: React.FC = () => {
   const [isOpen, setIsOpen] = useState<boolean>(false)
@@ -107,7 +107,7 @@ const Navbar: React.FC = () => {
 
       {/* Navigation Indicators */}
       <div className="hidden lg:block fixed left-8 top-1/2 transform -translate-y-1/2 space-y-4 z-40">
-        {navItems.map((item, index) => (
+        {navItems.map((item) => (
           <button
             key={item.name}
             onClick={() => handleNavClick(item.href)}

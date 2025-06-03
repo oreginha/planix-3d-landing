@@ -1,5 +1,5 @@
 import React, { useRef } from 'react'
-import { Users, Target, Award, Coffee, Heart, Lightbulb } from 'lucide-react'
+import { Users, Target, Award, Heart, Lightbulb } from 'lucide-react'
 import { useIntersectionObserver } from '@/hooks/useIntersectionObserver'
 import type { TeamMember } from '@/types'
 

@@ -5,9 +5,7 @@ import { Group, Mesh } from 'three'
 import type { FloatingElementsProps } from '@/types'
 
 const FloatingElements: React.FC<FloatingElementsProps> = ({ 
-  mousePosition, 
-  count = 5,
-  radius = 3
+  mousePosition
 }) => {
   const groupRef = useRef<Group>(null)
   const sphere1Ref = useRef<Mesh>(null)

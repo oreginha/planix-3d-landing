@@ -1,3 +1,5 @@
+/// <reference types="vite/client" />
+
 // Environment configuration
 export const env = {
   NODE_ENV: import.meta.env.MODE,
