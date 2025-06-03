@@ -7,7 +7,7 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 const app = express();
-const PORT = process.env.PORT || 4173;
+const PORT = process.env.PORT || 3000;
 const DIST_DIR = path.join(__dirname, 'dist');
 
 console.log('🚀 Starting Planix 3D Landing Page server...');
@@ -68,7 +68,8 @@ app.use((err, req, res, next) => {
   res.status(500).json({ error: 'Internal server error' });
 });
 
-app.listen(PORT, '0.0.0.0', () => {
+// Start server
+const server = app.listen(PORT, '0.0.0.0', () => {
   console.log(`✅ Server running successfully!`);
   console.log(`🌐 URL: http://0.0.0.0:${PORT}`);
   console.log(`🏥 Health check: http://0.0.0.0:${PORT}/health`);
@@ -85,4 +86,21 @@ app.listen(PORT, '0.0.0.0', () => {
   } catch (err) {
     console.error('❌ Error reading dist directory:', err);
   }
+});
+
+// Graceful shutdown
+process.on('SIGTERM', () => {
+  console.log('🛑 SIGTERM received, shutting down gracefully...');
+  server.close(() => {
+    console.log('✅ Server closed');
+    process.exit(0);
+  });
+});
+
+process.on('SIGINT', () => {
+  console.log('🛑 SIGINT received, shutting down gracefully...');
+  server.close(() => {
+    console.log('✅ Server closed');
+    process.exit(0);
+  });
 });

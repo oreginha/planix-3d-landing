@@ -11,8 +11,7 @@
     "healthcheckPath": "/health",
     "healthcheckTimeout": 300,
     "variables": {
-      "NODE_ENV": "production",
-      "PORT": "8080"
+      "NODE_ENV": "production"
     }
   }
 }
