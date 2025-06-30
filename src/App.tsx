@@ -2,10 +2,13 @@ import React, { Suspense, useEffect, useState, useMemo } from 'react'
 import { Canvas } from '@react-three/fiber'
 import { Physics } from '@react-three/rapier'
 import { Environment, AdaptiveDpr, AdaptiveEvents } from '@react-three/drei'
+import { EffectComposer, Bloom, DepthOfField, GodRays, Vignette, Noise, ChromaticAberration } from '@react-three/postprocessing'
 
 // Components
-import { Navbar, LoadingScreen, Footer, ParticleSystem, FloatingElements, InteractiveOrb } from './components'
+import { Navbar, LoadingScreen, Footer, ParticleSystem, FloatingElements, InteractiveOrb, BlenderModels } from './components'
 import { Hero, Services, Technology, Portfolio, About, Contact } from './sections'
+import DisruptiveShape from './components/3d/DisruptiveShape'
+import TechScene from './components/3d/TechScene'
 
 // Hooks
 import { useScrollProgress, useMousePosition, usePreloader } from './hooks'
@@ -70,7 +73,13 @@ const App: React.FC = () => {
               intensity={0.5} 
               color="#00D4FF" 
             />
-            
+            <EffectComposer>
+              <Bloom intensity={1.2} luminanceThreshold={0.15} luminanceSmoothing={0.2} radius={0.8} />
+              <DepthOfField focusDistance={0.01} focalLength={0.25} bokehScale={2.5} height={480} />
+              <Vignette eskil={false} offset={0.2} darkness={0.7} />
+              <Noise opacity={0.04} />
+              <ChromaticAberration offset={[0.001, 0.001]} />
+            </EffectComposer>
             <Physics 
               gravity={[0, -9.81, 0]} 
               timeStep={1/60}
@@ -83,6 +92,12 @@ const App: React.FC = () => {
               <FloatingElements 
                 mousePosition={mousePosition} 
               />
+              {/* Objeto 3D disruptivo animado */}
+              <DisruptiveShape position={[0, 0, 0]} scale={[1.6, 1.6, 1.6]} />
+              {/* Escena 3D profesional y animada */}
+              <TechScene position={[0, 0, 0]} scale={[1.7, 1.7, 1.7]} />
+              {/* Modelos 3D de Blender */}
+              <BlenderModels mousePosition={mousePosition} />
               <InteractiveOrb 
                 scrollProgress={scrollProgress} 
               />

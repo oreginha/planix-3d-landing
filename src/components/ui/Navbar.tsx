@@ -1,18 +1,11 @@
 import React, { useState, useEffect } from 'react'
 import { Menu, X, Code } from 'lucide-react'
+import { motion, AnimatePresence } from 'framer-motion'
 
 const Navbar: React.FC = () => {
   const [isOpen, setIsOpen] = useState<boolean>(false)
   const [isScrolled, setIsScrolled] = useState<boolean>(false)
-
-  useEffect(() => {
-    const handleScroll = () => {
-      setIsScrolled(window.scrollY > 50)
-    }
-
-    window.addEventListener('scroll', handleScroll, { passive: true })
-    return () => window.removeEventListener('scroll', handleScroll)
-  }, [])
+  const [activeSection, setActiveSection] = useState<string>('')
 
   const navItems = [
     { name: 'Inicio', href: '#hero' },
@@ -23,6 +16,25 @@ const Navbar: React.FC = () => {
     { name: 'Contacto', href: '#contact' },
   ]
 
+  useEffect(() => {
+    const handleScroll = () => {
+      setIsScrolled(window.scrollY > 50)
+      // Detectar sección activa
+      for (const item of navItems) {
+        const el = document.querySelector(item.href)
+        if (el) {
+          const rect = el.getBoundingClientRect()
+          if (rect.top <= 120 && rect.bottom > 120) {
+            setActiveSection(item.href)
+            break
+          }
+        }
+      }
+    }
+    window.addEventListener('scroll', handleScroll, { passive: true })
+    return () => window.removeEventListener('scroll', handleScroll)
+  }, [])
+
   const handleNavClick = (href: string) => {
     setIsOpen(false)
     const element = document.querySelector(href)
@@ -32,9 +44,14 @@ const Navbar: React.FC = () => {
   }
 
   return (
-    <nav className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
-      isScrolled ? 'glass backdrop-blur-xl py-2' : 'bg-transparent py-4'
-    }`}>
+    <motion.nav
+      initial={{ y: -60, opacity: 0 }}
+      animate={{ y: 0, opacity: 1 }}
+      transition={{ duration: 0.7, ease: 'easeOut' }}
+      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
+        isScrolled ? 'glass backdrop-blur-xl py-2' : 'bg-transparent py-4'
+      }`}
+    >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between">
           {/* Logo */}
@@ -53,21 +70,33 @@ const Navbar: React.FC = () => {
           {/* Desktop Navigation */}
           <div className="hidden md:flex items-center space-x-8">
             {navItems.map((item) => (
-              <button
+              <motion.button
                 key={item.name}
                 onClick={() => handleNavClick(item.href)}
-                className="text-gray-300 hover:text-white transition-colors duration-300 font-medium relative group"
+                className={`text-gray-300 hover:text-white transition-colors duration-300 font-medium relative group ${
+                  activeSection === item.href ? 'text-white' : ''
+                }`}
+                whileHover={{ scale: 1.08 }}
+                whileTap={{ scale: 0.96 }}
               >
                 {item.name}
-                <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-gradient-to-r from-planix-primary to-planix-secondary transition-all duration-300 group-hover:w-full"></span>
-              </button>
+                <motion.span
+                  layoutId="nav-underline"
+                  className="absolute bottom-0 left-0 h-0.5 bg-gradient-to-r from-planix-primary to-planix-secondary"
+                  animate={{ width: activeSection === item.href ? '100%' : '0%' }}
+                  transition={{ duration: 0.3 }}
+                  style={{ width: activeSection === item.href ? '100%' : '0%' }}
+                />
+              </motion.button>
             ))}
-            <button 
+            <motion.button
               onClick={() => handleNavClick('#contact')}
               className="btn-primary"
+              whileHover={{ scale: 1.08 }}
+              whileTap={{ scale: 0.96 }}
             >
               Comenzar Proyecto
-            </button>
+            </motion.button>
           </div>
 
           {/* Mobile menu button */}
@@ -82,41 +111,61 @@ const Navbar: React.FC = () => {
         </div>
 
         {/* Mobile Navigation */}
-        <div className={`md:hidden transition-all duration-300 overflow-hidden ${
-          isOpen ? 'max-h-96 opacity-100' : 'max-h-0 opacity-0'
-        }`}>
-          <div className="py-4 space-y-4">
-            {navItems.map((item) => (
-              <button
-                key={item.name}
-                onClick={() => handleNavClick(item.href)}
-                className="block w-full text-left text-gray-300 hover:text-white transition-colors duration-300 font-medium py-2"
-              >
-                {item.name}
-              </button>
-            ))}
-            <button 
-              onClick={() => handleNavClick('#contact')}
-              className="btn-primary w-full mt-4"
+        <AnimatePresence>
+          {isOpen && (
+            <motion.div
+              key="mobile-menu"
+              initial={{ height: 0, opacity: 0 }}
+              animate={{ height: 'auto', opacity: 1 }}
+              exit={{ height: 0, opacity: 0 }}
+              transition={{ duration: 0.4 }}
+              className="md:hidden overflow-hidden bg-black/90 rounded-b-xl shadow-xl"
             >
-              Comenzar Proyecto
-            </button>
-          </div>
-        </div>
+              <div className="py-4 space-y-4">
+                {navItems.map((item) => (
+                  <motion.button
+                    key={item.name}
+                    onClick={() => handleNavClick(item.href)}
+                    className={`block w-full text-left text-gray-300 hover:text-white transition-colors duration-300 font-medium py-2 ${
+                      activeSection === item.href ? 'text-white' : ''
+                    }`}
+                    whileHover={{ scale: 1.04 }}
+                    whileTap={{ scale: 0.97 }}
+                  >
+                    {item.name}
+                  </motion.button>
+                ))}
+                <motion.button
+                  onClick={() => handleNavClick('#contact')}
+                  className="btn-primary w-full mt-4"
+                  whileHover={{ scale: 1.04 }}
+                  whileTap={{ scale: 0.97 }}
+                >
+                  Comenzar Proyecto
+                </motion.button>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
       </div>
 
       {/* Navigation Indicators */}
       <div className="hidden lg:block fixed left-8 top-1/2 transform -translate-y-1/2 space-y-4 z-40">
         {navItems.map((item) => (
-          <button
+          <motion.button
             key={item.name}
             onClick={() => handleNavClick(item.href)}
-            className="block w-3 h-3 rounded-full bg-gray-600 hover:bg-planix-primary transition-all duration-300 hover:scale-125"
+            className={`block w-3 h-3 rounded-full transition-all duration-300 ${
+              activeSection === item.href
+                ? 'bg-planix-primary scale-125 shadow-lg'
+                : 'bg-gray-600 hover:bg-planix-primary'
+            }`}
             title={item.name}
+            whileHover={{ scale: 1.25 }}
           />
         ))}
       </div>
-    </nav>
+    </motion.nav>
   )
 }
 

@@ -149,35 +149,36 @@ const Services: React.FC = () => {
             return (
               <div
                 key={service.id}
-                className={`group relative glass rounded-2xl p-8 hover:scale-105 transition-all duration-500 card-hover ${
+                className={`group relative glass rounded-2xl p-6 md:p-6 lg:p-6 hover:scale-105 transition-all duration-500 card-hover ${
                   hasIntersected ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-12'
                 }`}
                 style={{ 
-                  transitionDelay: hasIntersected ? `${index * 100}ms` : '0ms' 
+                  transitionDelay: hasIntersected ? `${index * 100}ms` : '0ms',
+                  transform: 'scale(0.75)',
                 }}
               >
                 {/* Background Gradient */}
                 <div className={`absolute inset-0 bg-gradient-to-br ${service.color} opacity-5 rounded-2xl group-hover:opacity-10 transition-opacity duration-300`}></div>
                 
                 {/* Icon */}
-                <div className={`w-16 h-16 bg-gradient-to-br ${service.color} rounded-xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300`}>
-                  <IconComponent className="w-8 h-8 text-white" />
+                <div className={`w-12 h-12 bg-gradient-to-br ${service.color} rounded-xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-300`}>
+                  <IconComponent className="w-6 h-6 text-white" />
                 </div>
 
                 {/* Content */}
-                <h3 className="text-2xl font-bold text-white mb-4 group-hover:text-gradient transition-all duration-300">
+                <h3 className="text-xl font-bold text-white mb-3 group-hover:text-gradient transition-all duration-300">
                   {service.title}
                 </h3>
                 
-                <p className="text-gray-400 mb-6 leading-relaxed">
+                <p className="text-gray-400 mb-4 leading-relaxed text-base">
                   {service.description}
                 </p>
 
                 {/* Features */}
-                <ul className="space-y-2">
+                <ul className="space-y-1">
                   {service.features.map((feature, featureIndex) => (
-                    <li key={featureIndex} className="flex items-center text-sm text-gray-300">
-                      <div className="w-1.5 h-1.5 bg-planix-secondary rounded-full mr-3 flex-shrink-0"></div>
+                    <li key={featureIndex} className="flex items-center text-xs text-gray-300">
+                      <div className="w-1 h-1 bg-planix-secondary rounded-full mr-2 flex-shrink-0"></div>
                       {feature}
                     </li>
                   ))}
@@ -187,8 +188,8 @@ const Services: React.FC = () => {
                 <div className="absolute inset-0 rounded-2xl border border-transparent group-hover:border-gray-600 transition-all duration-300"></div>
                 
                 {/* CTA */}
-                <div className="mt-6 opacity-0 group-hover:opacity-100 transition-all duration-300 transform translate-y-2 group-hover:translate-y-0">
-                  <button className="text-sm font-semibold text-planix-secondary hover:text-planix-primary transition-colors duration-300 flex items-center space-x-2">
+                <div className="mt-4 opacity-0 group-hover:opacity-100 transition-all duration-300 transform translate-y-2 group-hover:translate-y-0">
+                  <button className="text-xs font-semibold text-planix-secondary hover:text-planix-primary transition-colors duration-300 flex items-center space-x-2">
                     <span>Más información</span>
                     <Globe className="w-4 h-4" />
                   </button>
