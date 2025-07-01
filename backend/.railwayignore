@@ -1,0 +1,31 @@
+# Archivos a ignorar en Railway deployment
+
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# Tests y documentación
+
+test-_.ps1
+_.md
+
+# Logs
+
+logs/
+\*.log
+
+# Temporales
+
+tmp/
+temp/
+
+# IDE
+
+.vscode/
+.idea/
+
+# OS
+
+.DS_Store
+Thumbs.db
