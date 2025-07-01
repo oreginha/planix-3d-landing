@@ -2,13 +2,15 @@
 
 ## ✅ **Estado actual del Deploy:**
 
-### **🌐 Frontend:** 
+### **🌐 Frontend:**
+
 - **Servicio:** planix-3d-landing
 - **URL:** https://planix-3d-landing-production.up.railway.app
 - **Estado:** ✅ Funcionando
 
 ### **⚙️ Backend Node.js:**
-- **Servicio:** planix-backend-nodejs  
+
+- **Servicio:** planix-backend-nodejs
 - **URL:** https://planix-backend-nodejs-production.up.railway.app
 - **Estado:** 🔄 En deploy
 - **Directorio:** `/backend`
@@ -17,6 +19,7 @@
 ## 📋 **Configuración completada:**
 
 ### **Variables de entorno del backend:**
+
 ```env
 PORT=3001
 NODE_ENV=production
@@ -30,15 +33,16 @@ ALLOWED_ORIGINS=https://planix-3d-landing-production.up.railway.app,https://plan
 ```
 
 ### **Endpoints del backend:**
+
 - **Health:** `GET /health`
-- **Contact:** `POST /api/contact` 
+- **Contact:** `POST /api/contact`
 - **Chat:** `POST /api/chat/message`
 - **Email Test:** `GET /api/contact/test`
 
 ## 🔧 **Próximos pasos:**
 
 1. **✅ Backend creado y configurado**
-2. **🔄 Deploy automático en progreso** 
+2. **🔄 Deploy automático en progreso**
 3. **⏳ Actualizar frontend para usar nueva API**
 4. **⏳ Configurar credenciales SMTP reales**
 5. **⏳ Testing completo en producción**
@@ -60,6 +64,7 @@ ALLOWED_ORIGINS=https://planix-3d-landing-production.up.railway.app,https://plan
 ## 🔄 **Siguiente iteración:**
 
 Una vez que el deploy termine automáticamente, necesitamos:
+
 1. Verificar que el backend responda correctamente
 2. Actualizar el frontend para usar la nueva API
 3. Configurar credenciales SMTP reales para emails
