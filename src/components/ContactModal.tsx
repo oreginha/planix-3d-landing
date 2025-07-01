@@ -69,7 +69,7 @@ const ContactModal: React.FC<ContactModalProps> = ({ isOpen, onClose, isDarkMode
     setMessage({ type: '', text: '' });
 
     try {
-      const response = await fetch('./contact-debug.php', {
+      let response = await fetch('./', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -82,7 +82,21 @@ const ContactModal: React.FC<ContactModalProps> = ({ isOpen, onClose, isDarkMode
         result = await response.json();
       } catch (parseError) {
         console.error('Error parsing JSON:', parseError);
-        throw new Error(`Error del servidor: ${response.status} ${response.statusText}`);
+        
+        console.log('');
+        response = await fetch('./', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(formData)
+        });
+        
+        try {
+          result = await response.json();
+        } catch (debugParseError) {
+          throw new Error(`Error del servidor: ${response.status} ${response.statusText}`);
+        }
       }
 
       console.log('Respuesta del servidor:', { status: response.status, result });
@@ -90,7 +104,7 @@ const ContactModal: React.FC<ContactModalProps> = ({ isOpen, onClose, isDarkMode
       if (response.ok && result.success) {
         setMessage({ 
           type: 'success', 
-          text: '¡Mensaje enviado correctamente! Te contactaremos pronto.' 
+          text: result.message || '¡Mensaje enviado correctamente! Te contactaremos pronto.' 
         });
         setFormData({ nombre: '', email: '', empresa: '', mensaje: '' });
         setTimeout(() => {

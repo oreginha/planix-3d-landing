@@ -40,7 +40,7 @@ export const useChatStorage = () => {
 
   const sendMessageToServer = async (message: ChatMessage) => {
     try {
-      const response = await fetch('./chat-message.php', {
+      const response = await fetch('./', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
