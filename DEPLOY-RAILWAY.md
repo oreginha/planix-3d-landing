@@ -1,71 +1,61 @@
-# 🚀 Deploy de Planix Landing + Backend Node.js en Railway
+# 🚀 Planix Backend - Railway Deploy
 
-## ✅ **Estado actual del Deploy:**
+## ✅ Configuración para Railway
 
-### **🌐 Frontend:**
+Este directorio contiene el backend Node.js + Express para Planix.
 
-- **Servicio:** planix-3d-landing
-- **URL:** https://planix-3d-landing-production.up.railway.app
-- **Estado:** ✅ Funcionando
+### 📋 Variables de entorno requeridas:
 
-### **⚙️ Backend Node.js:**
-
-- **Servicio:** planix-backend-nodejs
-- **URL:** https://planix-backend-nodejs-production.up.railway.app
-- **Estado:** 🔄 En deploy
-- **Directorio:** `/backend`
-- **Rama:** `backend-nodejs`
-
-## 📋 **Configuración completada:**
-
-### **Variables de entorno del backend:**
-
-```env
-PORT=3001
+```bash
+# Servidor
 NODE_ENV=production
+PORT=3001
+
+# Email
 EMAIL_TO=hola@planix.com.ar
 EMAIL_FROM_NAME=Planix Web
 EMAIL_FROM_EMAIL=noreply@planix.com.ar
-TEST_MODE=false
-DEBUG_LOGS=true
+
+# SMTP (configurar en producción)
+SMTP_HOST=smtp.gmail.com
+SMTP_PORT=587
+SMTP_USER=your-email@gmail.com
+SMTP_PASS=your-app-password
+
+# Seguridad
+ALLOWED_ORIGINS=https://planix-3d-landing-production.up.railway.app
 RATE_LIMIT_ENABLED=true
-ALLOWED_ORIGINS=https://planix-3d-landing-production.up.railway.app,https://planix.com.ar
+
+# Test Mode (false para producción)
+TEST_MODE=false
 ```
 
-### **Endpoints del backend:**
+### 🛠️ Scripts Railway:
 
-- **Health:** `GET /health`
-- **Contact:** `POST /api/contact`
-- **Chat:** `POST /api/chat/message`
-- **Email Test:** `GET /api/contact/test`
+- **Build**: `npm run build`
+- **Start**: `npm start`
+- **Dev**: `npm run dev`
 
-## 🔧 **Próximos pasos:**
+### 🌐 Endpoints:
 
-1. **✅ Backend creado y configurado**
-2. **🔄 Deploy automático en progreso**
-3. **⏳ Actualizar frontend para usar nueva API**
-4. **⏳ Configurar credenciales SMTP reales**
-5. **⏳ Testing completo en producción**
+- `GET /health` - Estado del servidor
+- `POST /api/contact` - Formulario de contacto
+- `POST /api/chat/message` - Mensajes de chat
+- `GET /api/contact/test` - Test de email
 
-## 🌍 **URLs de producción:**
+### 🔧 Configuración Railway:
 
-- **Frontend:** https://planix-3d-landing-production.up.railway.app
-- **Backend API:** https://planix-backend-nodejs-production.up.railway.app
-- **Health Check:** https://planix-backend-nodejs-production.up.railway.app/health
+1. **Root Directory**: `backend`
+2. **Build Command**: `npm run build`
+3. **Start Command**: `npm start`
+4. **Port**: `3001` (auto-detectado)
 
-## 📝 **Notas importantes:**
+### 📡 URL de producción:
 
-- El backend está configurado para usar el directorio `/backend`
-- Las variables SMTP están vacías (necesitan configuración real)
-- CORS configurado para permitir el frontend de Railway
-- Rate limiting activado en producción
-- Logs detallados activados para debugging
+https://planix-backend-node-production.up.railway.app
 
-## 🔄 **Siguiente iteración:**
+### 🧪 Test del deployment:
 
-Una vez que el deploy termine automáticamente, necesitamos:
-
-1. Verificar que el backend responda correctamente
-2. Actualizar el frontend para usar la nueva API
-3. Configurar credenciales SMTP reales para emails
-4. Testing completo de la integración
+```bash
+curl https://planix-backend-node-production.up.railway.app/health
+```
