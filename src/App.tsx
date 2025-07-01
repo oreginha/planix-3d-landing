@@ -75,7 +75,7 @@ const App: React.FC = () => {
           {/* SVG Cosmic Lines */}
           <svg 
             width="90vw" 
-            height="200" 
+            height="200"
             viewBox="0 0 700 200" 
             className="max-w-[700px] mx-auto"
             style={{ maxHeight: '250px' }}
@@ -340,17 +340,26 @@ const App: React.FC = () => {
             </div>
             
             <div className="flex space-x-6">
-              <a href="#" className={`transition-colors duration-300 hover:underline ${
-                isDarkMode ? 'text-gray-400 hover:text-white' : 'text-gray-600 hover:text-black'
-              }`}>
-                Privacidad
-              </a>
-              <a href="#" className={`transition-colors duration-300 hover:underline ${
-                isDarkMode ? 'text-gray-400 hover:text-white' : 'text-gray-600 hover:text-black'
-              }`}>
-                Términos
-              </a>
               <button 
+                type="button"
+                onClick={() => console.log('Política de privacidad')}
+                className={`transition-colors duration-300 hover:underline ${
+                  isDarkMode ? 'text-gray-400 hover:text-white' : 'text-gray-600 hover:text-black'
+                }`}
+              >
+                Privacidad
+              </button>
+              <button 
+                type="button"
+                onClick={() => console.log('Términos y condiciones')}
+                className={`transition-colors duration-300 hover:underline ${
+                  isDarkMode ? 'text-gray-400 hover:text-white' : 'text-gray-600 hover:text-black'
+                }`}
+              >
+                Términos
+              </button>
+              <button 
+                type="button"
                 onClick={() => setIsModalOpen(true)}
                 className={`transition-colors duration-300 hover:underline ${
                   isDarkMode ? 'text-gray-400 hover:text-white' : 'text-gray-600 hover:text-black'
