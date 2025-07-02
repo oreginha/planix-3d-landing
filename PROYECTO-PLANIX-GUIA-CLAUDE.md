@@ -81,7 +81,7 @@ d:\Proyectos y Desarrollo\planix-3d-landing\
 - **Repositorio**: `https://github.com/oreginha/planix-3d-landing`
 - **Rama Principal**: `backend-nodejs` (USAR ESTA RAMA)
 - **Rama Anterior**: `nueva-landing-planix` (solo consulta)
-- **Último Commit**: `903a08c` - "fix: Corregir pipeline GitHub Actions - usar Railway CLI en lugar de action inexistente"
+- **Último Commit**: `e76412a` - "docs: Actualizar guía con corrección del pipeline y agregar scripts de Railway CLI"
 
 ### **Railway**
 
@@ -218,17 +218,29 @@ npm start
 
 ## 🔧 PROBLEMAS CONOCIDOS Y SOLUCIONES
 
-### **1. Railway No Despliega Automáticamente**
+### **1. Pipeline GitHub Actions - ✅ CORREGIDO**
 
-**Síntomas**: No hay deployments en Railway después de push
-**Causa**: Posible desconexión Railway-GitHub
+**Estado**: RESUELTO - Pipeline usando Railway CLI
+**Cambios realizados**:
+
+```
+1. Removido railwayapp/railway-deploy@v3 (action inexistente)
+2. Implementado Railway CLI con npm install -g @railway/cli
+3. Deploy directo con railway up
+4. IDs de servicios específicos configurados
+```
+
+### **2. RAILWAY_TOKEN Configuración - ⚠️ PENDIENTE**
+
+**Síntomas**: Pipeline falla en step de deploy
+**Causa**: RAILWAY_TOKEN no configurado en GitHub Secrets
 **Solución**:
 
 ```
-1. Verificar configuración del repositorio en Railway
-2. Re-conectar el servicio al repositorio
-3. Hacer deploy manual con SHA específico
-4. Verificar permisos de GitHub
+1. Ir a https://railway.app/account/tokens
+2. Crear nuevo token
+3. Agregar a GitHub Secrets como RAILWAY_TOKEN
+4. Probar pipeline con nuevo push
 ```
 
 ### **2. Backend No Responde en Railway**
@@ -659,11 +671,17 @@ curl https://planix-backend-node-production.up.railway.app/health
 
 ## ⚠️ ESTADO ACTUAL - BLOCKERS
 
-### **🔴 CRÍTICO - RESOLVER PRIMERO:**
+### **� IMPORTANTE - RESOLVER AHORA:**
 
-- [ ] **Railway-GitHub Connection**: "Repo not found" error
-- [ ] **SMTP Configuration**: TEST_MODE=true, credenciales vacías
-- [ ] **GitHub Secrets**: No configurados para CI/CD
+- [ ] **RAILWAY_TOKEN Configuration**: Token no configurado en GitHub Secrets
+- [ ] **Pipeline Testing**: Verificar que el pipeline corregido funcione
+- [ ] **SMTP Configuration**: Verificar credenciales en Railway
+
+### **🟢 RESUELTO - COMPLETADO:**
+
+- [x] **Pipeline GitHub Actions**: Corregido usando Railway CLI
+- [x] **GitHub Actions Workflow**: Funcional y desplegado
+- [x] **Repository Connection**: Commits y push funcionando
 
 ### **🟡 IMPORTANTE - RESOLVER DESPUÉS:**
 
