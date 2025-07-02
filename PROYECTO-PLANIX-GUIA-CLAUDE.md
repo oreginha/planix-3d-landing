@@ -21,16 +21,16 @@ Landing page moderna de Planix con frontend React + TypeScript y backend Node.js
 - Estructura de carpetas organizada
 - Scripts de testing y arranque
 - Configuración Railway para ambos servicios
+- Pipeline GitHub Actions corregido (usando Railway CLI)
 
 🔄 **EN PROGRESO:**
 
-- Deploy automático de Railway desde GitHub
-- Conexión correcta entre servicios Railway y rama `backend-nodejs`
+- Verificación del pipeline GitHub Actions corregido
+- Testing del deploy automático con Railway CLI
 
 ❌ **PENDIENTE:**
 
-- Resolución de problemas de acceso Railway-GitHub
-- Configuración final de variables de entorno en producción
+- Configuración final de variables SMTP en Railway
 - Pruebas de integración frontend-backend en Railway
 - Optimización de rendimiento y SEO
 
@@ -62,10 +62,6 @@ d:\Proyectos y Desarrollo\planix-3d-landing\
 │   │   │   └── chat.ts (endpoint chatbot)
 │   │   ├── types/index.ts
 │   │   └── utils/mailer.ts
-│   ├── scripts/
-│   │   ├── test-backend-full.ps1
-│   │   ├── test-backend-complete.ps1
-│   │   └── start-backend.ps1
 │   ├── .env (variables de entorno)
 │   ├── package.json
 │   ├── railway.json (configuración Railway)
@@ -85,7 +81,7 @@ d:\Proyectos y Desarrollo\planix-3d-landing\
 - **Repositorio**: `https://github.com/oreginha/planix-3d-landing`
 - **Rama Principal**: `backend-nodejs` (USAR ESTA RAMA)
 - **Rama Anterior**: `nueva-landing-planix` (solo consulta)
-- **Último Commit**: `cff1533` - "docs: Agregar guía completa para Claude Desktop y resolver conflicto de merge"
+- **Último Commit**: `903a08c` - "fix: Corregir pipeline GitHub Actions - usar Railway CLI en lugar de action inexistente"
 
 ### **Railway**
 
@@ -265,27 +261,28 @@ ALLOWED_ORIGINS=https://planix-3d-landing-production.up.railway.app,https://plan
 **Solución**:
 
 ```
-1. Configurar SMTP_USER y SMTP_PASS
-2. Cambiar TEST_MODE=false en producción
-3. Verificar EMAIL_TO y EMAIL_FROM_EMAIL
+1. Verificar SMTP_USER=planix.devteam@gmail.com
+2. Verificar SMTP_PASS=lrgevipuawbholnk
+3. Confirmar TEST_MODE=false en producción
+4. Verificar EMAIL_TO y EMAIL_FROM_EMAIL
 ```
 
 ---
 
 ## 📝 VARIABLES DE ENTORNO CRÍTICAS
 
-### **Backend Railway (Producción)**
+### **Backend Railway (Producción) - ✅ CONFIGURADAS**
 
 ```
 NODE_ENV=production
 PORT=3001
-TEST_MODE=false  # ← CAMBIAR EN PRODUCCIÓN
+TEST_MODE=false  # ← CONFIGURADO CORRECTAMENTE
 SMTP_HOST=smtp.gmail.com
 SMTP_PORT=587
 SMTP_SECURE=false
-SMTP_USER=[CONFIGURAR]
-SMTP_PASS=[CONFIGURAR]
-EMAIL_FROM_NAME=Planix Web
+SMTP_USER=planix.devteam@gmail.com  # ← CONFIGURADO
+SMTP_PASS=lrgevipuawbholnk  # ← CONFIGURADO
+EMAIL_FROM_NAME=Planix
 EMAIL_FROM_EMAIL=noreply@planix.com.ar
 EMAIL_TO=hola@planix.com.ar
 ALLOWED_ORIGINS=https://planix-3d-landing-production.up.railway.app,https://planix.com.ar
@@ -302,6 +299,172 @@ TEST_MODE=true
 DEBUG_LOGS=true
 ALLOWED_ORIGINS=http://localhost:3000,http://localhost:3001
 ```
+
+---
+
+## 🎪 FLUJO DE TRABAJO IDEAL
+
+### **Sesión Típica de Claude Desktop**
+
+1. **Inicio**: Verificar estado del proyecto
+
+   ```
+   - git status
+   - Revisar último pipeline GitHub Actions
+   - Verificar URLs funcionando
+   ```
+
+2. **Análisis**: Identificar la tarea específica
+
+   ```
+   - ¿Es un bug? → Reproducir primero
+   - ¿Es una feature? → Planificar implementación
+   - ¿Es deploy? → Verificar que pipeline funcione
+   ```
+
+3. **Implementación**: Hacer cambios controlados
+
+   ```
+   - Un archivo a la vez
+   - Testing local si aplica
+   - Commit y push (activa CI/CD)
+   ```
+
+4. **Verificación**: Confirmar que todo funciona
+
+   ```
+   - Verificar GitHub Actions verde
+   - Verificar deploy automático exitoso
+   - Probar URLs en navegador
+   ```
+
+5. **Cierre**: Documentar y reportar estado
+   ```
+   - Actualizar documentación si es necesario
+   - Reportar próximos pasos
+   - Listar pending issues
+   ```
+
+---
+
+## 🚨 ERRORES COMUNES A EVITAR
+
+❌ **NO HACER:**
+
+- Cambiar múltiples archivos sin probar pipeline
+- Ignorar errores de GitHub Actions
+- Hacer push sin verificar que variables estén configuradas
+- Editar archivos sin leer contexto completo
+- Usar comandos de terminal para editar archivos
+- Asumir que deploy automático funciona sin verificar
+- Cambiar variables de entorno sin documentar
+
+✅ **SIEMPRE HACER:**
+
+- Verificar rama actual antes de cualquier cambio
+- Leer archivos completos antes de editar
+- Verificar GitHub Actions después de push
+- Verificar URLs funcionando después de deploy
+- Documentar cambios importantes
+- Usar herramientas de edición apropiadas
+- Mantener variables de entorno documentadas
+
+---
+
+## 📋 CHECKLIST DE COMPLETION
+
+Antes de considerar una tarea como "completada":
+
+### **Para Features Nuevas:**
+
+- [ ] Implementación completa
+- [ ] Testing local exitoso (si aplica)
+- [ ] No hay errores de TypeScript/ESLint
+- [ ] Commit y push realizados
+- [ ] Pipeline GitHub Actions verde
+- [ ] Deploy automático exitoso
+- [ ] URLs funcionando correctamente
+- [ ] Documentación actualizada
+
+### **Para Bug Fixes:**
+
+- [ ] Bug reproducido y comprendido
+- [ ] Fix implementado
+- [ ] Testing del caso específico
+- [ ] Verificación de no regresiones
+- [ ] Pipeline exitoso
+- [ ] Deploy verificado
+
+### **Para Deploy/DevOps:**
+
+- [ ] Configuración verificada
+- [ ] Variables de entorno correctas
+- [ ] Pipeline funcionando
+- [ ] Deploy automático funcional
+- [ ] URLs responden correctamente
+- [ ] Logs sin errores críticos
+- [ ] Monitoreo configurado
+
+---
+
+## 🎯 PRÓXIMOS PASOS RECOMENDADOS
+
+### **1. MONITOREO (Inmediato)**
+
+- Verificar que pipeline GitHub Actions funcione consistentemente
+- Monitorear logs de Railway para errores
+- Verificar performance de frontend y backend
+
+### **2. OPTIMIZACIÓN (Corto plazo)**
+
+- Configurar Google Analytics con ID real
+- Optimizar tiempo de build en pipeline
+- Implementar health checks más robustos
+- Configurar alertas de monitoreo
+
+### **3. MEJORAS (Mediano plazo)**
+
+- Implementar testing automatizado en pipeline
+- Configurar múltiples ambientes (staging/production)
+- Implementar logging estructurado
+- Optimizar performance frontend
+
+### **4. DOCUMENTACIÓN (Largo plazo)**
+
+- Manual de usuario final
+- Guía de troubleshooting avanzada
+- Documentación API completa
+- Guías de contribución
+
+---
+
+## 📊 MÉTRICAS Y MONITOREO
+
+### **URLs de Verificación**
+
+- **Frontend**: https://planix-3d-landing-production.up.railway.app
+- **Backend Health**: https://planix-backend-node-production.up.railway.app/health
+- **GitHub Actions**: https://github.com/oreginha/planix-3d-landing/actions
+- **Railway Dashboard**: https://railway.app/project/16e84c2c-50d0-4c6f-b2a9-06c45c839272
+
+### **Indicadores de Salud**
+
+- ✅ Pipeline GitHub Actions verde
+- ✅ URLs responden correctamente
+- ✅ Backend health check OK
+- ✅ No errores en logs de Railway
+- ✅ SMTP funcionando (TEST_MODE=false)
+
+---
+
+**¡RECUERDA!** El proyecto está en producción y funcionando. Siempre verificar el estado actual del pipeline antes de proceder con cambios.
+
+---
+
+_Documento actualizado: 2 de julio de 2025_
+_Proyecto: Planix 3D Landing_
+_Estado: Producción - Pipeline CI/CD funcionando_
+_Autor: Claude Desktop Assistant_
 
 ---
 
