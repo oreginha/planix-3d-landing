@@ -81,7 +81,7 @@ d:\Proyectos y Desarrollo\planix-3d-landing\
 - **Repositorio**: `https://github.com/oreginha/planix-3d-landing`
 - **Rama Principal**: `backend-nodejs` (USAR ESTA RAMA)
 - **Rama Anterior**: `nueva-landing-planix` (solo consulta)
-- **Último Commit**: `e76412a` - "docs: Actualizar guía con corrección del pipeline y agregar scripts de Railway CLI"
+- **Último Commit**: `ce88bd7` - "docs: Actualizar estado del pipeline - corregido y funcionando"
 
 ### **Railway**
 
