@@ -75,7 +75,7 @@ const App: React.FC = () => {
           {/* SVG Cosmic Lines */}
           <svg 
             width="90vw" 
-            height="200"
+            height="200" 
             viewBox="0 0 700 200" 
             className="max-w-[700px] mx-auto"
             style={{ maxHeight: '250px' }}
@@ -341,8 +341,7 @@ const App: React.FC = () => {
             
             <div className="flex space-x-6">
               <button 
-                type="button"
-                onClick={() => console.log('Política de privacidad')}
+                onClick={() => {/* TODO: Implementar página de privacidad */}}
                 className={`transition-colors duration-300 hover:underline ${
                   isDarkMode ? 'text-gray-400 hover:text-white' : 'text-gray-600 hover:text-black'
                 }`}
@@ -350,8 +349,7 @@ const App: React.FC = () => {
                 Privacidad
               </button>
               <button 
-                type="button"
-                onClick={() => console.log('Términos y condiciones')}
+                onClick={() => {/* TODO: Implementar página de términos */}}
                 className={`transition-colors duration-300 hover:underline ${
                   isDarkMode ? 'text-gray-400 hover:text-white' : 'text-gray-600 hover:text-black'
                 }`}
@@ -359,7 +357,6 @@ const App: React.FC = () => {
                 Términos
               </button>
               <button 
-                type="button"
                 onClick={() => setIsModalOpen(true)}
                 className={`transition-colors duration-300 hover:underline ${
                   isDarkMode ? 'text-gray-400 hover:text-white' : 'text-gray-600 hover:text-black'
