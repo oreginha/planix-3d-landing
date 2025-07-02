@@ -2,88 +2,106 @@ name: Deploy to Railway
 
 on:
   push:
-    branches: [ backend-nodejs ]
+    branches: [backend-nodejs]
   pull_request:
-    branches: [ backend-nodejs ]
+    branches: [backend-nodejs]
 
 jobs:
   test-and-deploy:
     runs-on: ubuntu-latest
-    
+
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v4
-    
-    # Frontend Build and Test
-    - name: Setup Node.js for Frontend
-      uses: actions/setup-node@v4
-      with:
-        node-version: '18'
-        cache: 'npm'
-    
-    - name: Install Frontend Dependencies
-      run: npm install
-      
-    - name: Build Frontend
-      run: npm run build
-      env:
-        VITE_API_URL: https://planix-backend-node-production.up.railway.app
-        VITE_CONTACT_EMAIL: hola@planix.com.ar
-        VITE_ANALYTICS_ID: ${{ secrets.VITE_ANALYTICS_ID }}
-        GENERATE_SOURCEMAP: false
-    
-    # Backend Build and Test
-    - name: Setup Node.js for Backend
-      uses: actions/setup-node@v4
-      with:
-        node-version: '18'
-        cache: 'npm'
-        cache-dependency-path: backend/package-lock.json
-    
-    - name: Install Backend Dependencies
-      run: |
-        cd backend
-        npm install
-        
-    - name: Build Backend
-      run: |
-        cd backend
-        npm run build
-        
-    # Deploy using Railway CLI
-    - name: Install Railway CLI
-      if: github.ref == 'refs/heads/backend-nodejs'
-      run: npm install -g @railway/cli
-      
-    - name: Deploy Frontend to Railway
-      if: github.ref == 'refs/heads/backend-nodejs'
-      run: |
-        railway login --token ${{ secrets.RAILWAY_TOKEN }}
-        railway link 16e84c2c-50d0-4c6f-b2a9-06c45c839272 --environment production
-        railway up --service a28eaffb-dc0b-434a-8556-512e4f028113
-        
-    - name: Deploy Backend to Railway  
-      if: github.ref == 'refs/heads/backend-nodejs'
-      run: |
-        railway up --service 4e2be212-b608-4241-b56d-e004b6dcf0e2
-        
-    # Verify Deployment
-    - name: Verify Frontend Deployment
-      if: github.ref == 'refs/heads/backend-nodejs'
-      run: |
-        sleep 30
-        curl -f https://planix-3d-landing-production.up.railway.app || echo "Frontend not ready yet"
-        
-    - name: Verify Backend Deployment
-      if: github.ref == 'refs/heads/backend-nodejs'
-      run: |
-        sleep 30
-        curl -f https://planix-backend-node-production.up.railway.app/health || echo "Backend not ready yet"
-        
-    # Notify Success
-    - name: Deployment Success
-      if: success() && github.ref == 'refs/heads/backend-nodejs'
-      run: |
-        echo "🎉 Deployment successful!"
-        echo "Frontend: https://planix-3d-landing-production.up.railway.app"
-        echo "Backend: https://planix-backend-node-production.up.railway.app"
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Debug - List directory structure
+        run: |
+          echo "=== Root directory ==="
+          ls -la
+          echo "=== Backend directory ==="
+          ls -la backend/
+          echo "=== package.json files ==="
+          find . -name "package.json" -type f
+          echo "=== Node version ==="
+          node --version
+          echo "=== NPM version ==="
+          npm --version
+
+      # Frontend Build and Test
+      - name: Setup Node.js for Frontend
+        uses: actions/setup-node@v4
+        with:
+          node-version: "18"
+          cache: "npm"
+
+      - name: Install Frontend Dependencies
+        run: |
+          echo "Installing frontend dependencies in root directory..."
+          npm ci
+
+      - name: Build Frontend
+        run: |
+          echo "Building frontend..."
+          npm run build
+        env:
+          VITE_API_URL: https://planix-backend-node-production.up.railway.app
+          VITE_CONTACT_EMAIL: hola@planix.com.ar
+          GENERATE_SOURCEMAP: false
+
+      # Backend Build and Test
+      - name: Setup Node.js for Backend
+        uses: actions/setup-node@v4
+        with:
+          node-version: "18"
+          cache: "npm"
+          cache-dependency-path: backend/package-lock.json
+
+      - name: Install Backend Dependencies
+        run: |
+          echo "Installing backend dependencies..."
+          cd backend
+          npm ci
+
+      - name: Build Backend
+        run: |
+          echo "Building backend..."
+          cd backend
+          npm run build
+
+      # Deploy using Railway CLI
+      - name: Install Railway CLI
+        if: github.ref == 'refs/heads/backend-nodejs'
+        run: npm install -g @railway/cli
+
+      - name: Deploy Frontend to Railway
+        if: github.ref == 'refs/heads/backend-nodejs'
+        run: |
+          railway login --token ${{ secrets.RAILWAY_TOKEN }}
+          railway link 16e84c2c-50d0-4c6f-b2a9-06c45c839272 --environment production
+          railway up --service a28eaffb-dc0b-434a-8556-512e4f028113
+
+      - name: Deploy Backend to Railway
+        if: github.ref == 'refs/heads/backend-nodejs'
+        run: |
+          railway up --service 4e2be212-b608-4241-b56d-e004b6dcf0e2
+
+      # Verify Deployment
+      - name: Verify Frontend Deployment
+        if: github.ref == 'refs/heads/backend-nodejs'
+        run: |
+          sleep 30
+          curl -f https://planix-3d-landing-production.up.railway.app || echo "Frontend not ready yet"
+
+      - name: Verify Backend Deployment
+        if: github.ref == 'refs/heads/backend-nodejs'
+        run: |
+          sleep 30
+          curl -f https://planix-backend-node-production.up.railway.app/health || echo "Backend not ready yet"
+
+      # Notify Success
+      - name: Deployment Success
+        if: success() && github.ref == 'refs/heads/backend-nodejs'
+        run: |
+          echo "🎉 Deployment successful!"
+          echo "Frontend: https://planix-3d-landing-production.up.railway.app"
+          echo "Backend: https://planix-backend-node-production.up.railway.app"
