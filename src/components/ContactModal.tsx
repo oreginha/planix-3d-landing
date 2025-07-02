@@ -69,7 +69,7 @@ const ContactModal: React.FC<ContactModalProps> = ({ isOpen, onClose, isDarkMode
     setMessage({ type: '', text: '' });
 
     try {
-      let response = await fetch('./', {
+      let response = await fetch('http://localhost:3001/api/contact', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -84,7 +84,7 @@ const ContactModal: React.FC<ContactModalProps> = ({ isOpen, onClose, isDarkMode
         console.error('Error parsing JSON:', parseError);
         
         console.log('');
-        response = await fetch('./', {
+        response = await fetch('http://localhost:3001/api/contact', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',

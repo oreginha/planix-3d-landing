@@ -51,6 +51,12 @@ class MailerService {
 
   async sendContactEmail(data: ContactFormData): Promise<boolean> {
     try {
+      // Log de entrada de datos
+      if (process.env.DEBUG_LOGS === 'true') {
+        console.log('➡️ [DEBUG] Entrando a sendContactEmail con datos:', data);
+        console.log('➡️ [DEBUG] Configuración SMTP:', this.config);
+      }
+
       // En modo test sin credenciales SMTP, simular envío exitoso
       if (this.config.testMode && (!this.config.smtp.auth.user || !this.config.smtp.auth.pass)) {
         console.log('📧 [MODO TEST] Email de contacto simulado:', {
@@ -103,16 +109,23 @@ class MailerService {
         replyTo: data.email
       };
 
+      if (process.env.DEBUG_LOGS === 'true') {
+        console.log('➡️ [DEBUG] Opciones de envío:', mailOptions);
+      }
+
       const info = await this.transporter.sendMail(mailOptions);
       
       if (process.env.DEBUG_LOGS === 'true') {
-        console.log('📧 Email enviado:', info.messageId);
+        console.log('✅ [DEBUG] Email enviado:', info);
         console.log('📧 Destinatario:', recipientEmail);
       }
 
       return true;
     } catch (error) {
       console.error('❌ Error enviando email de contacto:', error);
+      if (error && typeof error === 'object') {
+        console.error('❌ [DEBUG] Error stack:', (error as any).stack);
+      }
       return false;
     }
   }
