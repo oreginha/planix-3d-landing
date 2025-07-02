@@ -29,7 +29,7 @@ const FloatingChat: React.FC<FloatingChatProps> = ({ isDarkMode }) => {
   const [isFirstMessage, setIsFirstMessage] = useState(true);
   const [waitingForEmail, setWaitingForEmail] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
-  const chatbot = useRef(new PlanixChatbot());
+  // const chatbot = useRef(new PlanixChatbot()); // TODO: Implementar chatbot
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });

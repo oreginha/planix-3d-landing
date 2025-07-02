@@ -85,7 +85,7 @@ d:\Proyectos y Desarrollo\planix-3d-landing\
 - **Repositorio**: `https://github.com/oreginha/planix-3d-landing`
 - **Rama Principal**: `backend-nodejs` (USAR ESTA RAMA)
 - **Rama Anterior**: `nueva-landing-planix` (solo consulta)
-- **Último Commit**: `43b5af7` - "docs: Agregar documentación de deploy Railway"
+- **Último Commit**: `cff1533` - "docs: Agregar guía completa para Claude Desktop y resolver conflicto de merge"
 
 ### **Railway**
 
@@ -404,30 +404,115 @@ Antes de considerar una tarea como "completada":
 
 ---
 
-## 🎯 PRÓXIMOS PASOS PRIORITARIOS
+## 🔴 ACCIONES MANUALES CRÍTICAS REQUERIDAS
 
-1. **CRÍTICO**: Resolver Railway-GitHub connection
+### **1. Railway Dashboard (CRÍTICO)**
 
-   - Verificar acceso al repositorio
-   - Re-configurar webhook si es necesario
-   - Hacer deploy manual como fallback
+**URL**: https://railway.app/project/16e84c2c-50d0-4c6f-b2a9-06c45c839272
 
-2. **IMPORTANTE**: Configurar SMTP en producción
+Variables a cambiar INMEDIATAMENTE:
 
-   - Obtener credenciales SMTP
-   - Actualizar variables de entorno
-   - Cambiar TEST_MODE=false
+```bash
+# En Railway → planix-backend-node → Variables
+TEST_MODE=false  # Cambiar de true a false (CRÍTICO para emails)
+SMTP_USER=tu-email@gmail.com  # Completar con email real
+SMTP_PASS=tu-app-password-16-chars  # App password de Gmail
+```
 
-3. **MEJORAS**: Optimización y monitoreo
+### **2. GitHub Secrets (NECESARIO PARA CI/CD)**
 
-   - Configurar health checks
-   - Implementar logging estructurado
-   - Optimizar performance frontend
+**URL**: https://github.com/oreginha/planix-3d-landing/settings/secrets/actions
 
-4. **DOCUMENTACIÓN**: Completar guías
-   - Manual de usuario final
-   - Guía de troubleshooting
-   - Documentación API
+Secrets a crear:
+
+```bash
+# GitHub → Settings → Secrets and variables → Actions
+RAILWAY_TOKEN=railway-token-from-dashboard  # Token de Railway
+SMTP_USER=mismo-que-railway  # Mismo email que Railway
+SMTP_PASS=mismo-que-railway  # Misma app password
+```
+
+### **3. Gmail App Password (PREREQUISITO)**
+
+**Pasos obligatorios**:
+
+```bash
+1. Ir a: https://myaccount.google.com/security
+2. Habilitar 2FA (autenticación de dos factores)
+3. Buscar "Contraseñas de aplicaciones"
+4. Generar nueva contraseña para "Correo"
+5. Copiar los 16 caracteres generados
+6. Usar en SMTP_PASS (Railway y GitHub)
+```
+
+### **4. Verificar Conexión Railway-GitHub**
+
+**Pasos para reconectar**:
+
+```bash
+1. Railway Dashboard → planix-backend-node → Settings
+2. Verify GitHub connection
+3. Re-authorize if needed
+4. Ensure branch is set to "backend-nodejs"
+```
+
+---
+
+## 🚀 PRÓXIMOS PASOS INMEDIATOS
+
+### **Paso 1: Ejecutar Script de Configuración**
+
+```powershell
+.\setup-variables.ps1
+```
+
+### **Paso 2: Implementar CI/CD Pipeline**
+
+```bash
+git add .github/workflows/deploy.yml
+git commit -m "feat: Agregar GitHub Actions CI/CD pipeline"
+git push origin backend-nodejs
+```
+
+### **Paso 3: Configuración Manual**
+
+1. ✅ Completar variables en Railway (TEST_MODE, SMTP_USER, SMTP_PASS)
+2. ✅ Crear secrets en GitHub (RAILWAY_TOKEN, SMTP_USER, SMTP_PASS)
+3. ✅ Verificar conexión Railway-GitHub
+4. ✅ Probar pipeline con próximo push
+
+### **Paso 4: Verificación Final**
+
+```bash
+# Testing local
+cd backend && npm run dev
+.\test-backend-full.ps1
+
+# Testing en Railway
+curl https://planix-backend-node-production.up.railway.app/health
+```
+
+---
+
+## ⚠️ ESTADO ACTUAL - BLOCKERS
+
+### **🔴 CRÍTICO - RESOLVER PRIMERO:**
+
+- [ ] **Railway-GitHub Connection**: "Repo not found" error
+- [ ] **SMTP Configuration**: TEST_MODE=true, credenciales vacías
+- [ ] **GitHub Secrets**: No configurados para CI/CD
+
+### **🟡 IMPORTANTE - RESOLVER DESPUÉS:**
+
+- [ ] **Health Checks**: Configurar monitoreo automático
+- [ ] **Domain Setup**: Configurar dominio personalizado
+- [ ] **Performance**: Optimizar tiempo de build
+
+### **🟢 OPCIONAL - FUTURAS MEJORAS:**
+
+- [ ] **Monitoring**: Implementar logs estructurados
+- [ ] **Caching**: Optimizar estrategia de cache
+- [ ] **SEO**: Mejorar meta tags y sitemap
 
 ---
 

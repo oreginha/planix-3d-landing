@@ -1,0 +1,121 @@
+name: Deploy to Railway
+
+on:
+  push:
+    branches: [ backend-nodejs ]
+  pull_request:
+    branches: [ backend-nodejs ]
+
+jobs:
+  test-and-deploy:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+    
+    # Frontend Build and Test
+    - name: Setup Node.js for Frontend
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+        cache: 'npm'
+    
+    - name: Install Frontend Dependencies
+      run: npm install
+      
+    - name: Lint Frontend Code
+      run: npx eslint src --ext .ts,.tsx --max-warnings 0
+      continue-on-error: false
+      
+    - name: TypeScript Check Frontend
+      run: npx tsc --noEmit
+      
+    - name: Build Frontend
+      run: npm run build
+      env:
+        VITE_API_URL: https://planix-backend-node-production.up.railway.app
+        VITE_CONTACT_EMAIL: hola@planix.com.ar
+        VITE_ANALYTICS_ID: ${{ secrets.VITE_ANALYTICS_ID }}
+        GENERATE_SOURCEMAP: false
+    
+    # Backend Build and Test
+    - name: Setup Node.js for Backend
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+        cache: 'npm'
+        cache-dependency-path: backend/package-lock.json
+    
+    - name: Install Backend Dependencies
+      run: |
+        cd backend
+        npm install
+        
+    - name: Lint Backend Code
+      run: |
+        cd backend
+        npx eslint src --ext .ts --max-warnings 0
+      continue-on-error: false
+      
+    - name: TypeScript Check Backend
+      run: |
+        cd backend
+        npx tsc --noEmit
+        
+    - name: Build Backend
+      run: |
+        cd backend
+        npm run build
+        
+    - name: Test Backend Endpoints
+      run: |
+        cd backend
+        npm start &
+        sleep 10
+        curl -f http://localhost:3001/health || exit 1
+        curl -f http://localhost:3001/api/contact/test || exit 1
+      env:
+        NODE_ENV: test
+        PORT: 3001
+        TEST_MODE: true
+        SMTP_HOST: smtp.gmail.com
+        SMTP_PORT: 587
+        SMTP_USER: ${{ secrets.SMTP_USER }}
+        SMTP_PASS: ${{ secrets.SMTP_PASS }}
+    
+    # Deploy to Railway
+    - name: Deploy Frontend to Railway
+      if: github.ref == 'refs/heads/backend-nodejs'
+      uses: railwayapp/railway-deploy@v3
+      with:
+        railway_token: ${{ secrets.RAILWAY_TOKEN }}
+        service: planix-3d-landing
+        
+    - name: Deploy Backend to Railway  
+      if: github.ref == 'refs/heads/backend-nodejs'
+      uses: railwayapp/railway-deploy@v3
+      with:
+        railway_token: ${{ secrets.RAILWAY_TOKEN }}
+        service: planix-backend-node
+        
+    # Verify Deployment
+    - name: Verify Frontend Deployment
+      if: github.ref == 'refs/heads/backend-nodejs'
+      run: |
+        sleep 30
+        curl -f https://planix-3d-landing-production.up.railway.app || exit 1
+        
+    - name: Verify Backend Deployment
+      if: github.ref == 'refs/heads/backend-nodejs'
+      run: |
+        sleep 30
+        curl -f https://planix-backend-node-production.up.railway.app/health || exit 1
+        
+    # Notify Success
+    - name: Deployment Success
+      if: success() && github.ref == 'refs/heads/backend-nodejs'
+      run: |
+        echo "🎉 Deployment successful!"
+        echo "Frontend: https://planix-3d-landing-production.up.railway.app"
+        echo "Backend: https://planix-backend-node-production.up.railway.app"
