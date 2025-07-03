@@ -9,10 +9,10 @@ interface ContactModalProps {
 const ContactModal: React.FC<ContactModalProps> = ({ isOpen, onClose, isDarkMode }) => {
   const [isAnimating, setIsAnimating] = useState(false);
   const [formData, setFormData] = useState({
-    nombre: '',
+    name: '',
     email: '',
-    empresa: '',
-    mensaje: ''
+    company: '',
+    message: ''
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [message, setMessage] = useState({ type: '', text: '' });
@@ -106,7 +106,7 @@ const ContactModal: React.FC<ContactModalProps> = ({ isOpen, onClose, isDarkMode
           type: 'success', 
           text: result.message || '¡Mensaje enviado correctamente! Te contactaremos pronto.' 
         });
-        setFormData({ nombre: '', email: '', empresa: '', mensaje: '' });
+        setFormData({ name: '', email: '', company: '', message: '' });
         setTimeout(() => {
           onClose();
           setMessage({ type: '', text: '' });
@@ -127,7 +127,7 @@ const ContactModal: React.FC<ContactModalProps> = ({ isOpen, onClose, isDarkMode
       // setTimeout(() => {
       //   const subject = encodeURIComponent('Consulta desde la web');
       //   const body = encodeURIComponent(
-      //     `Hola,\n\nMe gustaría hacer una consulta:\n\n${formData.mensaje}\n\nSaludos,\n${formData.nombre}\n${formData.email}`
+      //     `Hola,\n\nMe gustaría hacer una consulta:\n\n${formData.message}\n\nSaludos,\n${formData.name}\n${formData.email}`
       //   );
       //   window.open(`mailto:hola@planix.com.ar?subject=${subject}&body=${body}`, '_blank');
       // }, 1000);
@@ -237,9 +237,9 @@ const ContactModal: React.FC<ContactModalProps> = ({ isOpen, onClose, isDarkMode
             <form onSubmit={handleSubmit} className="w-full max-w-[95%] md:max-w-xs space-y-4 md:space-y-4">
               <input
                 type="text"
-                name="nombre"
+                name="name"
                 placeholder="Tu nombre"
-                value={formData.nombre}
+                value={formData.name}
                 onChange={handleInputChange}
                 required
                 className={`w-full px-4 py-4 text-base md:text-sm md:px-3 md:py-2 rounded-lg border transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500 ${
@@ -263,9 +263,9 @@ const ContactModal: React.FC<ContactModalProps> = ({ isOpen, onClose, isDarkMode
               />
               <input
                 type="text"
-                name="empresa"
+                name="company"
                 placeholder="Tu empresa (opcional)"
-                value={formData.empresa}
+                value={formData.company}
                 onChange={handleInputChange}
                 className={`w-full px-4 py-4 text-base md:text-sm md:px-3 md:py-2 rounded-lg border transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500 ${
                   isDarkMode 
@@ -274,10 +274,10 @@ const ContactModal: React.FC<ContactModalProps> = ({ isOpen, onClose, isDarkMode
                 }`}
               />
               <textarea
-                name="mensaje"
+                name="message"
                 placeholder="Cuéntanos sobre tu proyecto..."
                 rows={3}
-                value={formData.mensaje}
+                value={formData.message}
                 onChange={handleInputChange}
                 required
                 className={`w-full px-4 py-4 text-base md:text-sm md:px-3 md:py-2 rounded-lg border transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none ${
@@ -329,8 +329,8 @@ const ContactModal: React.FC<ContactModalProps> = ({ isOpen, onClose, isDarkMode
                 style={{
                   left: `${20 + Math.random() * 60}%`,
                   top: `${20 + Math.random() * 60}%`,
-                  animation: `modalParticle ${2 + Math.random() * 2}s ease-in-out infinite ${Math.random()}s`,
-                  animationDelay: `${i * 0.1}s`
+                  animation: `modalParticle ${2 + Math.random() * 2}s ease-in-out infinite`,
+                  animationDelay: `${i * 0.1 + Math.random()}s`
                 }}
               />
             ))}

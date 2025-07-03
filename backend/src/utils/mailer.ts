@@ -25,8 +25,8 @@ class MailerService {
       testEmail: process.env.TEST_EMAIL
     };
 
-    // Solo crear el transporter si tenemos credenciales SMTP o estamos en modo test
-    if (this.config.smtp.auth.user && this.config.smtp.auth.pass) {
+    // Solo crear el transporter si tenemos credenciales SMTP reales
+    if (this.config.smtp.auth.user && this.config.smtp.auth.pass && !this.config.testMode) {
       this.transporter = nodemailer.createTransport({
         host: this.config.smtp.host,
         port: this.config.smtp.port,
@@ -37,15 +37,21 @@ class MailerService {
         }
       });
     } else {
-      // Crear un transporter de prueba para desarrollo
-      this.transporter = nodemailer.createTransport({
-        host: 'localhost',
-        port: 587,
-        secure: false,
-        tls: {
-          rejectUnauthorized: false
+      // Crear un mock transporter para modo test
+      this.transporter = {
+        sendMail: async (options: any) => {
+          console.log('📧 [MOCK TRANSPORTER] Email simulado:', {
+            from: options.from,
+            to: options.to,
+            subject: options.subject,
+            timestamp: new Date().toISOString()
+          });
+          return { 
+            messageId: `mock-${Date.now()}@test.planix.com`,
+            response: '250 Message accepted for delivery'
+          };
         }
-      });
+      } as any;
     }
   }
 
@@ -55,16 +61,26 @@ class MailerService {
       if (process.env.DEBUG_LOGS === 'true') {
         console.log('➡️ [DEBUG] Entrando a sendContactEmail con datos:', data);
         console.log('➡️ [DEBUG] Configuración SMTP:', this.config);
+        console.log('➡️ [DEBUG] Test Mode:', this.config.testMode);
+        console.log('➡️ [DEBUG] SMTP User:', this.config.smtp.auth.user);
       }
 
-      // En modo test sin credenciales SMTP, simular envío exitoso
-      if (this.config.testMode && (!this.config.smtp.auth.user || !this.config.smtp.auth.pass)) {
-        console.log('📧 [MODO TEST] Email de contacto simulado:', {
+      // En modo test, simular envío exitoso
+      if (this.config.testMode) {
+        console.log('📧 [MODO TEST] Email de contacto simulado exitosamente:', {
           to: this.config.testEmail || this.config.to,
           from: data.email,
           name: data.name,
-          messageLength: data.message.length
+          subject: `Nuevo contacto desde Planix - ${data.name}`,
+          messageLength: data.message.length,
+          timestamp: new Date().toISOString()
         });
+        
+        // Log adicional para verificar que funciona
+        if (process.env.LOG_EMAILS === 'true') {
+          console.log('📧 [MODO TEST] Contenido del mensaje:', data.message);
+        }
+        
         return true;
       }
 
@@ -132,13 +148,14 @@ class MailerService {
 
   async sendChatMessage(message: ChatMessage): Promise<boolean> {
     try {
-      // En modo test sin credenciales SMTP, simular envío exitoso
-      if (this.config.testMode && (!this.config.smtp.auth.user || !this.config.smtp.auth.pass)) {
-        console.log('💬 [MODO TEST] Mensaje de chat simulado:', {
+      // En modo test, simular envío exitoso
+      if (this.config.testMode) {
+        console.log('💬 [MODO TEST] Mensaje de chat simulado exitosamente:', {
           to: this.config.testEmail || this.config.to,
           userName: message.userName,
           userEmail: message.userEmail,
-          messageLength: message.message.length
+          messageLength: message.message.length,
+          timestamp: new Date().toISOString()
         });
         return true;
       }
