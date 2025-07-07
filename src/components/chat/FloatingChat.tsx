@@ -1,7 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { X, Send, User, Settings, Trash2 } from 'lucide-react';
 import { useChatStorage, ChatMessage } from '../../hooks/useChatStorage';
-import { PlanixChatbot } from '../../utils/chatbot';
 import { validateEmail, extractEmailFromMessage } from '../../utils/emailUtils';
 
 interface FloatingChatProps {
