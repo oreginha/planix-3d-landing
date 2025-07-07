@@ -7,8 +7,45 @@ import contactRoutes from './routes/contact';
 import chatRoutes from './routes/chat';
 import { ApiResponse } from './types';
 
-// Cargar variables de entorno
-dotenv.config();
+// Cargar variables de entorno PRIMERO
+dotenv.config({ path: __dirname + '/../.env' });
+
+// Debug: verificar que las variables se carguen
+if (process.env.DEBUG_LOGS === 'true') {
+  console.log('🔧 [DEBUG] Variables de Telegram:', {
+    TELEGRAM_ENABLED: process.env.TELEGRAM_ENABLED,
+    TELEGRAM_BOT_TOKEN: process.env.TELEGRAM_BOT_TOKEN ? 'SET' : 'NOT_SET',
+    TELEGRAM_ADMIN_CHAT_IDS: process.env.TELEGRAM_ADMIN_CHAT_IDS ? 'SET' : 'NOT_SET'
+  });
+}
+
+// Inicializar servicio de Telegram dinámicamente DESPUÉS de cargar variables
+const initializeTelegram = async () => {
+  try {
+    const telegramModule = await require('./services/telegram');
+    // Forzar inicialización enviando un mensaje de prueba AL GRUPO
+    const telegramService = telegramModule.default;
+    
+    // Usar todos los chat IDs para probar
+    const chatIds = process.env.TELEGRAM_ADMIN_CHAT_IDS?.split(',') || [];
+    for (const chatId of chatIds) {
+      const trimmedChatId = chatId.trim();
+      console.log(`🤖 [TELEGRAM] Probando envío a chat: ${trimmedChatId}`);
+      try {
+        // Crear una instancia temporal para probar cada chat
+        const testMessage = `🔥 Backend de Planix iniciado correctamente\n⏰ ${new Date().toLocaleString('es-AR')}`;
+        await telegramService.sendMessage(testMessage);
+        break; // Si uno funciona, no probar el resto
+      } catch (error) {
+        console.log(`🤖 [TELEGRAM] Chat ${trimmedChatId} no disponible:`, error);
+      }
+    }
+    
+    console.log('📱 [TELEGRAM] Servicio cargado y probado exitosamente');
+  } catch (error) {
+    console.error('❌ [TELEGRAM] Error al cargar servicio:', error);
+  }
+};
 
 const app = express();
 const PORT = process.env.PORT || 3001;
@@ -54,11 +91,27 @@ app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 // RUTAS
 // =========================================
 
-// Ruta de salud
+// Ruta de salud (dos versiones para compatibilidad)
 app.get('/health', (req, res) => {
   const response: ApiResponse = {
     success: true,
     message: 'Backend Planix funcionando correctamente',
+    data: {
+      timestamp: new Date().toISOString(),
+      version: '1.0.0',
+      environment: process.env.NODE_ENV || 'development',
+      testMode: process.env.TEST_MODE === 'true'
+    }
+  };
+  
+  res.status(200).json(response);
+});
+
+// Health check en /api/health también
+app.get('/api/health', (req, res) => {
+  const response: ApiResponse = {
+    success: true,
+    message: 'Servidor funcionando correctamente',
     data: {
       timestamp: new Date().toISOString(),
       version: '1.0.0',
@@ -106,7 +159,7 @@ app.use((error: Error, req: express.Request, res: express.Response, next: expres
 // INICIO DEL SERVIDOR
 // =========================================
 
-app.listen(PORT, () => {
+app.listen(PORT, async () => {
   console.log(`🚀 Servidor Planix corriendo en puerto ${PORT}`);
   console.log(`📧 Modo test: ${process.env.TEST_MODE === 'true' ? 'ACTIVADO' : 'DESACTIVADO'}`);
   console.log(`🌍 Entorno: ${process.env.NODE_ENV || 'development'}`);
@@ -117,6 +170,9 @@ app.listen(PORT, () => {
     console.log(`⚡ CORS permitido para: ${corsOptions.origin}`);
     console.log(`⚡ Rate limiting: ${process.env.RATE_LIMIT_ENABLED === 'true' ? 'ACTIVADO' : 'DESACTIVADO'}`);
   }
+  
+  // Inicializar Telegram después de que el servidor esté listo
+  await initializeTelegram();
 });
 
 export default app;
