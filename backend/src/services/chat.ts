@@ -1,5 +1,7 @@
 import { ChatSession, ChatMessage } from '../types/chat';
 import telegramService from './telegram';
+import * as fs from 'fs';
+import * as path from 'path';
 
 interface AutoResponse {
   id: string;
@@ -21,8 +23,21 @@ class ChatService {
   }
   private sessions: Map<string, ChatSession> = new Map();
   private autoResponses: AutoResponse[];
+  private sessionsFilePath: string;
 
   constructor() {
+    // Configurar ruta de persistencia
+    this.sessionsFilePath = path.join(process.cwd(), 'data', 'sessions.json');
+    
+    // Crear directorio data si no existe
+    const dataDir = path.dirname(this.sessionsFilePath);
+    if (!fs.existsSync(dataDir)) {
+      fs.mkdirSync(dataDir, { recursive: true });
+    }
+
+    // Cargar sesiones existentes
+    this.loadSessions();
+
     // Respuestas automáticas predefinidas del bot
     this.autoResponses = [
       {
@@ -58,6 +73,52 @@ class ChatService {
     ];
 
     console.log('💬 [CHAT] Servicio inicializado con', this.autoResponses.length, 'respuestas automáticas');
+    console.log('💬 [CHAT] Sesiones cargadas:', this.sessions.size);
+  }
+
+  private loadSessions(): void {
+    try {
+      if (fs.existsSync(this.sessionsFilePath)) {
+        const data = fs.readFileSync(this.sessionsFilePath, 'utf8');
+        const sessionsData = JSON.parse(data);
+        
+        // Convertir fechas de string a Date
+        for (const [sessionId, sessionData] of Object.entries(sessionsData)) {
+          const session = sessionData as any;
+          session.startTime = new Date(session.startTime);
+          session.lastActivity = new Date(session.lastActivity);
+          
+          // Convertir timestamps de mensajes
+          session.messages.forEach((msg: any) => {
+            msg.timestamp = new Date(msg.timestamp);
+          });
+          
+          this.sessions.set(sessionId, session as ChatSession);
+        }
+        
+        console.log('💬 [CHAT] Sesiones cargadas desde archivo:', this.sessions.size);
+      }
+    } catch (error) {
+      console.error('💬 [CHAT] Error cargando sesiones:', error);
+    }
+  }
+
+  private saveSessions(): void {
+    try {
+      const sessionsData: { [key: string]: ChatSession } = {};
+      
+      for (const [sessionId, session] of this.sessions.entries()) {
+        sessionsData[sessionId] = session;
+      }
+      
+      fs.writeFileSync(this.sessionsFilePath, JSON.stringify(sessionsData, null, 2));
+      
+      if (process.env.DEBUG_LOGS === 'true') {
+        console.log('💬 [CHAT] Sesiones guardadas:', this.sessions.size);
+      }
+    } catch (error) {
+      console.error('💬 [CHAT] Error guardando sesiones:', error);
+    }
   }
 
   generateSessionId(): string {
@@ -82,6 +143,7 @@ class ChatService {
     };
 
     this.sessions.set(sessionId, session);
+    this.saveSessions(); // Guardar inmediatamente
 
     if (process.env.DEBUG_LOGS === 'true') {
       console.log('💬 [CHAT] Nueva sesión creada:', sessionId);
@@ -111,6 +173,7 @@ class ChatService {
 
     session.messages.push(chatMessage);
     session.lastActivity = new Date();
+    this.saveSessions(); // Guardar después de cada mensaje
 
     // Notificar a Telegram sobre el nuevo mensaje
     if (sender === 'client') {
@@ -192,6 +255,7 @@ class ChatService {
 
     session.isAdminConnected = true;
     session.status = 'admin_connected';
+    this.saveSessions(); // Guardar cambio de estado
     await telegramService.notifyAdminIntervention(sessionId);
 
     console.log('💬 [CHAT] Intervención administrativa habilitada para sesión:', sessionId);
@@ -201,6 +265,7 @@ class ChatService {
   async addAdminMessage(sessionId: string, message: string, adminTelegramId?: string): Promise<ChatMessage | null> {
     const session = this.sessions.get(sessionId);
     if (!session) {
+      console.log('💬 [CHAT] Sesión no encontrada para mensaje de admin:', sessionId);
       return null;
     }
 
@@ -209,17 +274,18 @@ class ChatService {
       await this.enableAdminIntervention(sessionId);
     }
 
+    // Agregar mensaje del administrador
     const adminMessage = await this.addMessage(sessionId, message, 'admin');
     
-    // Agregar información del admin si se proporciona
+    // Agregar metadata del admin si se proporciona
     if (adminTelegramId) {
-      adminMessage.adminInfo = {
-        telegramId: adminTelegramId,
-        name: 'Admin'
+      adminMessage.metadata = {
+        ...adminMessage.metadata,
+        adminTelegramId
       };
-      session.adminTelegramId = adminTelegramId;
     }
 
+    console.log('💬 [CHAT] Mensaje de administrador agregado:', { sessionId, adminTelegramId });
     return adminMessage;
   }
 
@@ -238,6 +304,7 @@ class ChatService {
     }
 
     session.status = 'closed';
+    this.saveSessions(); // Guardar cambio de estado
 
     // Enviar resumen final a Telegram
     const summary = telegramService.formatChatSession(session);
@@ -247,7 +314,6 @@ class ChatService {
     return true;
   }
 
-  // Limpiar sesiones antiguas (llamar periódicamente)
   cleanupOldSessions(): number {
     const now = new Date();
     const maxAge = 24 * 60 * 60 * 1000; // 24 horas
@@ -263,15 +329,17 @@ class ChatService {
 
     if (cleaned > 0) {
       console.log('💬 [CHAT] Limpieza automática:', cleaned, 'sesiones eliminadas');
+      this.saveSessions(); // Guardar después de limpiar
     }
 
     return cleaned;
   }
 }
 
+// Crear instancia única del servicio
 const chatService = new ChatService();
 
-// Limpiar sesiones antiguas cada hora
+// Configurar limpieza automática cada hora
 setInterval(() => {
   chatService.cleanupOldSessions();
 }, 60 * 60 * 1000);

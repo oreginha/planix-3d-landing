@@ -49,3 +49,6 @@ Thumbs.db
 # Temporal
 tmp/
 temp/
+
+# Datos de sesiones
+data/
