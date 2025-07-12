@@ -154,10 +154,66 @@ ${messagesList}
 `;
   }
 
-  // Webhook para recibir mensajes de Telegram (para implementar más adelante)
+  // Webhook para recibir mensajes de Telegram
   async handleWebhook(telegramMessage: TelegramMessage): Promise<void> {
-    // Esta función se implementará cuando configuremos el webhook
     console.log('🤖 [TELEGRAM] Webhook recibido:', telegramMessage);
+    
+    // Verificar que el mensaje tenga texto
+    if (!telegramMessage.text) {
+      console.log('🤖 [TELEGRAM] Mensaje sin texto, ignorando');
+      return;
+    }
+
+    // Verificar que el mensaje venga de un chat autorizado
+    const adminChatIds = process.env.TELEGRAM_ADMIN_CHAT_IDS?.split(',').map(id => parseInt(id.trim())) || [];
+    if (!adminChatIds.includes(telegramMessage.chat.id)) {
+      console.log('🤖 [TELEGRAM] Mensaje de chat no autorizado:', telegramMessage.chat.id);
+      return;
+    }
+
+    // Buscar si el mensaje contiene un ID de sesión
+    const sessionIdMatch = telegramMessage.text.match(/(?:chat_|ID:)\s*([a-zA-Z0-9_]+)/i);
+    
+    if (sessionIdMatch) {
+      const sessionId = sessionIdMatch[1];
+      const messageText = telegramMessage.text.replace(/(?:chat_|ID:)\s*[a-zA-Z0-9_]+/i, '').trim();
+      
+      if (messageText) {
+        // Importar chatService dinámicamente para evitar dependencias circulares
+        const { default: chatService } = await import('./chat');
+        
+        // Enviar mensaje del admin al chat
+        const adminMessage = await chatService.addAdminMessage(
+          sessionId, 
+          messageText, 
+          telegramMessage.from.id.toString()
+        );
+        
+        if (adminMessage) {
+          console.log('🤖 [TELEGRAM] Mensaje de admin enviado al chat:', sessionId);
+          
+          // Confirmar recepción en Telegram
+          await this.sendMessage(`✅ Mensaje enviado al chat ${sessionId}:\n"${messageText}"`);
+        } else {
+          await this.sendMessage(`❌ No se pudo enviar el mensaje. Sesión ${sessionId} no encontrada.`);
+        }
+      }
+    } else {
+      // Si no hay ID de sesión, mostrar ayuda
+      const helpMessage = `
+🤖 <b>Cómo responder a un chat:</b>
+
+Para responder a un cliente, incluye el ID de la sesión en tu mensaje:
+
+<code>chat_123456789 Tu respuesta aquí</code>
+
+O simplemente:
+<code>ID: 123456789 Tu respuesta</code>
+
+💡 El ID de sesión aparece en las notificaciones de nuevos chats.`;
+      
+      await this.sendMessage(helpMessage);
+    }
   }
 }
 
