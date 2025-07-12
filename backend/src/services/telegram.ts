@@ -6,17 +6,19 @@ interface TelegramServiceConfig {
   enabled: boolean;
 }
 
-interface TelegramMessage {
-  message_id: number;
-  from: {
-    id: number;
-    first_name: string;
-    username?: string;
+interface TelegramWebhook {
+  message?: {
+    message_id: number;
+    from: {
+      id: number;
+      first_name: string;
+      username?: string;
+    };
+    chat: {
+      id: number;
+    };
+    text?: string;
   };
-  chat: {
-    id: number;
-  };
-  text?: string;
 }
 
 class TelegramService {
@@ -155,8 +157,16 @@ ${messagesList}
   }
 
   // Webhook para recibir mensajes de Telegram
-  async handleWebhook(telegramMessage: TelegramMessage): Promise<void> {
-    console.log('🤖 [TELEGRAM] Webhook recibido:', telegramMessage);
+  async handleWebhook(telegramWebhook: TelegramWebhook): Promise<void> {
+    console.log('🤖 [TELEGRAM] Webhook recibido:', telegramWebhook);
+    
+    // Verificar que el webhook tenga un mensaje
+    if (!telegramWebhook.message) {
+      console.log('🤖 [TELEGRAM] Webhook sin mensaje, ignorando');
+      return;
+    }
+
+    const telegramMessage = telegramWebhook.message;
     
     // Verificar que el mensaje tenga texto
     if (!telegramMessage.text) {
