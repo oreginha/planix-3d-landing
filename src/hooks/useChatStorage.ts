@@ -130,7 +130,7 @@ export const useChatStorage = () => {
             }
             
             // Agregar mensaje inicial si no existe
-            const hasInitialMessage = mappedMessages.some(msg => msg.id === '1');
+            const hasInitialMessage = mappedMessages.some((msg: ChatMessage) => msg.id === '1');
             const initialMessage = hasInitialMessage ? [] : [{
               id: '1',
               text: '¡Hola! 👋 Soy parte del equipo de Planix. ¿En qué puedo ayudarte hoy?',
