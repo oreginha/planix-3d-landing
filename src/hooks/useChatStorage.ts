@@ -102,37 +102,53 @@ export const useChatStorage = () => {
         if (result.success && result.data?.messages) {
           const serverMessages = result.data.messages;
           
-          // Solo agregar mensajes nuevos
-          if (serverMessages.length > lastMessageCount) {
-            const newMessages = serverMessages.slice(lastMessageCount);
+          // Mapear todos los mensajes del servidor al formato del frontend
+          const mappedMessages = serverMessages.map((msg: any) => {
+            let isUser = false;
             
-            newMessages.forEach((msg: any) => {
-              if (msg.sender === 'admin') {
-                const adminMessage: ChatMessage = {
-                  id: msg.id,
-                  text: msg.message,
-                  isUser: false,
-                  timestamp: new Date(msg.timestamp),
-                  status: 'delivered'
-                };
-                setMessages(prev => {
-                  // Evitar duplicados
-                  if (!prev.find(m => m.id === adminMessage.id)) {
-                    return [...prev, adminMessage];
-                  }
-                  return prev;
-                });
-              }
-            });
+            // Mapear sender a isUser
+            if (msg.sender === 'client') {
+              isUser = true;
+            } else if (msg.sender === 'bot' || msg.sender === 'admin') {
+              isUser = false;
+            }
             
-            setLastMessageCount(serverMessages.length);
-          }
+            return {
+              id: msg.id,
+              text: msg.message,
+              isUser: isUser,
+              timestamp: new Date(msg.timestamp),
+              status: 'delivered' as const
+            };
+          });
+          
+          // Actualizar mensajes solo si hay cambios
+          setMessages(prev => {
+            // Mantener el mensaje inicial si no hay mensajes del servidor
+            if (mappedMessages.length === 0) {
+              return prev;
+            }
+            
+            // Agregar mensaje inicial si no existe
+            const hasInitialMessage = mappedMessages.some(msg => msg.id === '1');
+            const initialMessage = hasInitialMessage ? [] : [{
+              id: '1',
+              text: '¡Hola! 👋 Soy parte del equipo de Planix. ¿En qué puedo ayudarte hoy?',
+              isUser: false,
+              timestamp: new Date(),
+              status: 'delivered' as const
+            }];
+            
+            return [...initialMessage, ...mappedMessages];
+          });
+          
+          setLastMessageCount(serverMessages.length);
         }
       }
     } catch (error) {
       console.error('Error checking for new messages:', error);
     }
-  }, [lastMessageCount]);
+  }, []);
 
   // Polling para nuevos mensajes cada 3 segundos
   useEffect(() => {
