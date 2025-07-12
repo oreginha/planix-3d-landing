@@ -281,7 +281,7 @@ class ChatService {
     if (adminTelegramId) {
       adminMessage.metadata = {
         ...adminMessage.metadata,
-        adminTelegramId
+        adminTelegramId: adminTelegramId
       };
     }
 

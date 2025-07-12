@@ -31,6 +31,7 @@ export interface ChatMessage {
     trigger?: string;
     clientRead?: boolean;
     adminRead?: boolean;
+    adminTelegramId?: string;
   };
 }
 
