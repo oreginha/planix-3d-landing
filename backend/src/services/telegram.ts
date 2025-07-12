@@ -188,6 +188,10 @@ ${messagesList}
       const sessionId = sessionIdMatch[1] || sessionIdMatch[2]; // Primer grupo para chat_, segundo para ID:
       const messageText = telegramMessage.text.replace(/(?:chat_[a-zA-Z0-9_]+|ID:\s*[a-zA-Z0-9_]+)/i, '').trim();
       
+      console.log('🤖 [TELEGRAM] SessionId extraído:', sessionId);
+      console.log('🤖 [TELEGRAM] Mensaje original:', telegramMessage.text);
+      console.log('🤖 [TELEGRAM] Mensaje limpio:', messageText);
+      
       if (messageText) {
         // Importar chatService dinámicamente para evitar dependencias circulares
         const { default: chatService } = await import('./chat');

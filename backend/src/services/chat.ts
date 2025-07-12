@@ -263,9 +263,13 @@ class ChatService {
   }
 
   async addAdminMessage(sessionId: string, message: string, adminTelegramId?: string): Promise<ChatMessage | null> {
+    console.log('💬 [CHAT] Buscando sesión:', sessionId);
+    console.log('💬 [CHAT] Sesiones disponibles:', Array.from(this.sessions.keys()));
+    
     const session = this.sessions.get(sessionId);
     if (!session) {
       console.log('💬 [CHAT] Sesión no encontrada para mensaje de admin:', sessionId);
+      console.log('💬 [CHAT] Total de sesiones en memoria:', this.sessions.size);
       return null;
     }
 
