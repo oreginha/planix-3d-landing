@@ -19,7 +19,7 @@ export const useChatStorage = () => {
     status: 'delivered'
   }]);
   const [userInfo, setUserInfo] = useState<{name?: string, email?: string}>({});
-  const [lastMessageCount, setLastMessageCount] = useState(1);
+  const [, setLastMessageCount] = useState(1);
 
   const addMessage = (message: Omit<ChatMessage, 'id' | 'timestamp'>) => {
     const newMessage: ChatMessage = {
