@@ -56,7 +56,7 @@ try {
         }
     } | ConvertTo-Json -Depth 10
     
-    $webhookResponse = Invoke-RestMethod -Uri "$BACKEND_URL/api/telegram/webhook" -Method POST -Body $webhookData -ContentType "application/json"
+    $webhookResponse = Invoke-RestMethod -Uri "$BACKEND_URL/api/chat/telegram/webhook" -Method POST -Body $webhookData -ContentType "application/json"
     
     Write-Host "Webhook enviado exitosamente" -ForegroundColor Green
     Write-Host "   Respuesta: $webhookResponse" -ForegroundColor White

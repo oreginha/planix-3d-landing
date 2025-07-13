@@ -182,10 +182,16 @@ ${messagesList}
     }
 
     // Buscar si el mensaje contiene un ID de sesión
-    const sessionIdMatch = telegramMessage.text.match(/(?:chat_([a-zA-Z0-9_]+)|ID:\s*([a-zA-Z0-9_]+))/i);
+    const sessionIdMatch = telegramMessage.text.match(/(?:(chat_[a-zA-Z0-9_]+)|ID:\s*(chat_[a-zA-Z0-9_]+|[a-zA-Z0-9_]+))/i);
     
     if (sessionIdMatch) {
-      const sessionId = sessionIdMatch[1] || sessionIdMatch[2]; // Primer grupo para chat_, segundo para ID:
+      let sessionId = sessionIdMatch[1] || sessionIdMatch[2]; // Primer grupo para chat_, segundo para ID:
+      
+      // Si el sessionId no tiene el prefijo chat_, agregarlo
+      if (sessionId && !sessionId.startsWith('chat_')) {
+        sessionId = 'chat_' + sessionId;
+      }
+      
       const messageText = telegramMessage.text.replace(/(?:chat_[a-zA-Z0-9_]+|ID:\s*[a-zA-Z0-9_]+)/i, '').trim();
       
       console.log('🤖 [TELEGRAM] SessionId extraído:', sessionId);
