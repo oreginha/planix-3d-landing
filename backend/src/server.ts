@@ -51,6 +51,13 @@ const app = express();
 const PORT = process.env.PORT || 3001;
 
 // =========================================
+// CONFIGURACIÓN DE PROXY (DEBE IR PRIMERO)
+// =========================================
+
+// Configurar trust proxy para Railway ANTES de cualquier middleware
+app.set('trust proxy', true);
+
+// =========================================
 // MIDDLEWARES DE SEGURIDAD
 // =========================================
 
@@ -66,7 +73,7 @@ const corsOptions = {
 };
 app.use(cors(corsOptions));
 
-// Rate limiting
+// Rate limiting (DESPUÉS de configurar trust proxy)
 if (process.env.RATE_LIMIT_ENABLED === 'true') {
   const limiter = rateLimit({
     windowMs: (parseInt(process.env.RATE_LIMIT_WINDOW_MINUTES || '15')) * 60 * 1000,
