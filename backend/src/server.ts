@@ -77,7 +77,7 @@ app.use(cors(corsOptions));
 if (process.env.RATE_LIMIT_ENABLED === 'true') {
   const limiter = rateLimit({
     windowMs: (parseInt(process.env.RATE_LIMIT_WINDOW_MINUTES || '15')) * 60 * 1000,
-    max: parseInt(process.env.RATE_LIMIT_MAX_REQUESTS || '10'),
+    max: parseInt(process.env.RATE_LIMIT_MAX_REQUESTS || '100'),
     message: {
       success: false,
       message: 'Demasiadas solicitudes. Intenta de nuevo más tarde.',
@@ -85,6 +85,8 @@ if (process.env.RATE_LIMIT_ENABLED === 'true') {
     },
     standardHeaders: true,
     legacyHeaders: false,
+    // Configuración específica para Railway
+    trustProxy: true,
     // Excluir el webhook de Telegram del rate limiting
     skip: (req) => {
       return req.path === '/api/chat/telegram/webhook';
