@@ -12,15 +12,6 @@ interface AutoResponse {
 }
 
 class ChatService {
-  processClientMessage(id: string, message: any) {
-      throw new Error('Method not implemented.');
-  }
-  processAdminMessage(sessionId: any, message: any, adminTelegramId: any, adminName: any) {
-      throw new Error('Method not implemented.');
-  }
-  getActiveSessions() {
-      throw new Error('Method not implemented.');
-  }
   private sessions: Map<string, ChatSession> = new Map();
   private autoResponses: AutoResponse[];
   private sessionsFilePath: string;
