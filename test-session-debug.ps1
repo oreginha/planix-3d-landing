@@ -3,7 +3,8 @@
 # Configuracion
 $BACKEND_URL = "https://planix-backend-node-production.up.railway.app"
 $TELEGRAM_BOT_TOKEN = $env:TELEGRAM_BOT_TOKEN
-$TELEGRAM_CHAT_ID = $env:TELEGRAM_CHAT_ID
+# Usar uno de los chat IDs autorizados desde Railway
+$TELEGRAM_CHAT_ID = "6111613750"
 
 Write-Host "Iniciando prueba de debug de sesiones..." -ForegroundColor Yellow
 
