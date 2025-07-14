@@ -42,18 +42,25 @@ export const useChatStorage = () => {
   const sendMessageToServer = async (message: ChatMessage) => {
     try {
       const backendUrl = process.env.REACT_APP_BACKEND_URL || 'https://planix-backend-node-production.up.railway.app';
+      // Preparar datos del mensaje, solo incluir userEmail si tiene valor
+      const messageData: any = {
+        message: message.text,
+        userName: userInfo.name || 'Usuario Anónimo',
+        isFirstMessage: false,
+        sessionId: localStorage.getItem('chatSessionId') || undefined
+      };
+      
+      // Solo agregar userEmail si tiene un valor válido
+      if (userInfo.email && userInfo.email.trim()) {
+        messageData.userEmail = userInfo.email;
+      }
+      
       const response = await fetch(`${backendUrl}/api/chat/message`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({
-          message: message.text,
-          userName: userInfo.name || 'Usuario Anónimo',
-          userEmail: userInfo.email || '',
-          isFirstMessage: false,
-          sessionId: localStorage.getItem('chatSessionId') || undefined
-        })
+        body: JSON.stringify(messageData)
       });
 
       const result = await response.json();
