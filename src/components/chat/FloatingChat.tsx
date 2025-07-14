@@ -28,7 +28,6 @@ const FloatingChat: React.FC<FloatingChatProps> = ({ isDarkMode }) => {
   const [isFirstMessage, setIsFirstMessage] = useState(true);
   const [waitingForEmail, setWaitingForEmail] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
-  // const chatbot = useRef(new PlanixChatbot()); // TODO: Implementar chatbot
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -93,68 +92,41 @@ const FloatingChat: React.FC<FloatingChatProps> = ({ isDarkMode }) => {
       userEmail: userInfo.email
     };
 
-    // Enviar al servidor
+    // Enviar al servidor y esperar respuesta
     const sent = await sendMessageToServer(userMessage);
+    
+    setIsTyping(false);
     
     if (!sent) {
       updateMessageStatus(messageId, 'sent');
-    }
-
-    // Lógica de respuesta según el estado
-    setTimeout(() => {
-      setIsTyping(false);
-      
-      if (isFirstMessage) {
-        // Primera respuesta: validar longitud del mensaje
-        setIsFirstMessage(false);
-        
-        if (messageText.length <= 30) {
-          // Mensaje corto (30 caracteres o menos)
-          addMessage({
-            text: 'Perfecto, gracias por tu consulta. Para seguir con la conversación, ¿podrías compartir tu email? 📧',
-            isUser: false,
-            status: 'delivered'
-          });
-        } else {
-          // Mensaje largo (más de 30 caracteres)
-          addMessage({
-            text: 'Perfecto, gracias por tu consulta. Para poder darte una respuesta personalizada y encontrar un asesor disponible ¿podrías compartir tu email?',
-            isUser: false,
-            status: 'delivered'
-          });
-        }
-        setWaitingForEmail(true);
-      } else if (waitingForEmail) {
-        // Verificar si el mensaje contiene un email
-        const extractedEmail = extractEmailFromMessage(messageText);
-        
-        if (extractedEmail && validateEmail(extractedEmail)) {
-          // Email válido encontrado
-          setUserInfo(prev => ({ ...prev, email: extractedEmail }));
-          setWaitingForEmail(false);
-          
-          addMessage({
-            text: `¡Excelente! Gracias ${extractedEmail}. Ahora puedo ayudarte mejor. 🚀\n\nPuedes ampliar tu consulta o esperar una respuesta de nuestro equipo especializado. Nuestros servicios: desarrollo web, apps móviles, e-commerce, diseño, o sistemas personalizados. ¿Qué te interesa más?`,
-            isUser: false,
-            status: 'delivered'
-          });
-        } else {
-          // No se encontró email válido
-          addMessage({
-            text: 'No pude detectar un email válido en tu mensaje. ¿Podrías escribir tu email en formato correcto? Por ejemplo: tu@email.com 📧',
-            isUser: false,
-            status: 'delivered'
-          });
-        }
-      } else {
-        // Después de tener email: mensaje de derivación a especialista
+      // Si falla el envío al servidor, mostrar mensaje de error
+      setTimeout(() => {
         addMessage({
-          text: '¡Excelente! Estamos buscando un asistente especializado que se unirá pronto al chat o te responderá por email.',
+          text: 'Lo siento, hubo un problema de conexión. Por favor, intenta nuevamente.',
           isUser: false,
           status: 'delivered'
         });
+      }, 1000);
+    }
+    
+    // Actualizar estados locales para el flujo del chat
+    if (isFirstMessage) {
+      setIsFirstMessage(false);
+      // Verificar si necesitamos pedir email
+      const extractedEmail = extractEmailFromMessage(messageText);
+      if (!extractedEmail || !validateEmail(extractedEmail)) {
+        setWaitingForEmail(true);
+      } else {
+        setUserInfo(prev => ({ ...prev, email: extractedEmail }));
+        setWaitingForEmail(false);
       }
-    }, 1500);
+    } else if (waitingForEmail) {
+      const extractedEmail = extractEmailFromMessage(messageText);
+      if (extractedEmail && validateEmail(extractedEmail)) {
+        setUserInfo(prev => ({ ...prev, email: extractedEmail }));
+        setWaitingForEmail(false);
+      }
+    }
   };
 
   const handleKeyPress = (e: React.KeyboardEvent) => {
@@ -342,10 +314,10 @@ const FloatingChat: React.FC<FloatingChatProps> = ({ isDarkMode }) => {
               </div>
             </div>
           )}
-
+          
           {/* Confirm Clear Modal */}
           {showConfirmClear && (
-            <div className="absolute inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-20">
+            <div className="absolute inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-10">
               <div className={`w-80 rounded-2xl p-6 ${
                 isDarkMode ? 'bg-gray-900 border border-gray-700' : 'bg-white border border-gray-200'
               }`}>
@@ -354,13 +326,11 @@ const FloatingChat: React.FC<FloatingChatProps> = ({ isDarkMode }) => {
                 }`}>
                   ¿Borrar historial?
                 </h3>
-                
                 <p className={`text-sm mb-6 ${
-                  isDarkMode ? 'text-gray-400' : 'text-gray-600'
+                  isDarkMode ? 'text-gray-300' : 'text-gray-600'
                 }`}>
-                  ¿Estás seguro de que quieres borrar todo el historial del chat? Esta acción no se puede deshacer.
+                  Esta acción eliminará todos los mensajes del chat y no se puede deshacer.
                 </p>
-                
                 <div className="flex gap-2">
                   <button
                     onClick={() => setShowConfirmClear(false)}
@@ -374,11 +344,7 @@ const FloatingChat: React.FC<FloatingChatProps> = ({ isDarkMode }) => {
                   </button>
                   <button
                     onClick={confirmClearChat}
-                    className={`flex-1 px-4 py-2 rounded-lg transition-colors ${
-                      isDarkMode 
-                        ? 'bg-red-600 hover:bg-red-700 text-white' 
-                        : 'bg-red-500 hover:bg-red-600 text-white'
-                    }`}
+                    className="flex-1 px-4 py-2 bg-red-500 hover:bg-red-600 text-white rounded-lg transition-colors"
                   >
                     Borrar
                   </button>
@@ -388,114 +354,108 @@ const FloatingChat: React.FC<FloatingChatProps> = ({ isDarkMode }) => {
           )}
           
           {/* Chat Container */}
-          <div className={`relative w-full max-w-sm h-[500px] md:h-[600px] rounded-2xl shadow-2xl transition-all duration-300 ${
-            isDarkMode ? 'bg-gray-900 border border-gray-700' : 'bg-white border border-gray-200'
-          } flex flex-col mr-36`}>
+          <div className={`relative w-full max-w-md h-[600px] md:h-[500px] rounded-2xl shadow-2xl overflow-hidden ${
+            isDarkMode 
+              ? 'bg-gray-900 border border-gray-700' 
+              : 'bg-white border border-gray-200'
+          } backdrop-blur-lg`}>
             
             {/* Header */}
-            <div className={`p-4 border-b rounded-t-2xl ${
-              isDarkMode ? 'border-gray-700 bg-gray-800' : 'border-gray-200 bg-gray-50'
+            <div className={`p-4 border-b flex items-center justify-between ${
+              isDarkMode ? 'border-gray-700 bg-gray-800/50' : 'border-gray-200 bg-gray-50/50'
             }`}>
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-full bg-gradient-to-r from-blue-600 to-purple-600 flex items-center justify-center">
-                    <User className="text-white" size={20} />
-                  </div>
-                  <div>
-                    <h3 className={`font-semibold ${
-                      isDarkMode ? 'text-white' : 'text-gray-900'
-                    }`}>
-                      Planix Team
-                    </h3>
-                    <p className={`text-xs flex items-center gap-1 ${
-                      isDarkMode ? 'text-gray-400' : 'text-gray-500'
-                    }`}>
-                      <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-                      En línea
-                    </p>
-                  </div>
+              <div className="flex items-center gap-3">
+                <div className="w-8 h-8 bg-gradient-to-r from-blue-600 to-purple-600 rounded-full flex items-center justify-center">
+                  <User size={16} className="text-white" />
                 </div>
-                
-                <div className="flex items-center gap-2">
-                  <button
-                    onClick={() => setShowSettings(true)}
-                    className={`p-1 rounded-full transition-colors ${
-                      isDarkMode 
-                        ? 'hover:bg-gray-700 text-gray-400' 
-                        : 'hover:bg-gray-200 text-gray-500'
-                    }`}
-                  >
-                    <Settings size={18} />
-                  </button>
-                  <button
-                    onClick={() => setIsOpen(false)}
-                    className={`p-1 rounded-full transition-colors ${
-                      isDarkMode 
-                        ? 'hover:bg-gray-700 text-gray-400' 
-                        : 'hover:bg-gray-200 text-gray-500'
-                    }`}
-                  >
-                    <X size={18} />
-                  </button>
+                <div>
+                  <h3 className={`font-semibold text-sm ${
+                    isDarkMode ? 'text-white' : 'text-gray-900'
+                  }`}>
+                    Planix Support
+                  </h3>
+                  <p className={`text-xs ${
+                    isDarkMode ? 'text-gray-400' : 'text-gray-500'
+                  }`}>
+                    En línea
+                  </p>
                 </div>
               </div>
+              
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={() => setShowSettings(true)}
+                  className={`p-2 rounded-lg transition-colors ${
+                    isDarkMode 
+                      ? 'hover:bg-gray-700 text-gray-400 hover:text-white' 
+                      : 'hover:bg-gray-100 text-gray-500 hover:text-gray-700'
+                  }`}
+                >
+                  <Settings size={16} />
+                </button>
+                <button
+                  onClick={() => setIsOpen(false)}
+                  className={`p-2 rounded-lg transition-colors ${
+                    isDarkMode 
+                      ? 'hover:bg-gray-700 text-gray-400 hover:text-white' 
+                      : 'hover:bg-gray-100 text-gray-500 hover:text-gray-700'
+                  }`}
+                >
+                  <X size={16} />
+                </button>
+              </div>
             </div>
-
+            
             {/* Messages */}
-            <div className="flex-1 overflow-y-auto p-4 space-y-4">
+            <div className="flex-1 overflow-y-auto p-4 space-y-4 h-[calc(100%-140px)]">
               {messages.map((message) => (
                 <div
                   key={message.id}
                   className={`flex ${message.isUser ? 'justify-end' : 'justify-start'}`}
                 >
-                  <div className={`max-w-[80%] ${message.isUser ? 'order-2' : 'order-1'}`}>
-                    <div className={`p-3 rounded-2xl ${
+                  <div
+                    className={`max-w-[80%] p-3 rounded-2xl ${
                       message.isUser
                         ? 'bg-gradient-to-r from-blue-600 to-purple-600 text-white'
                         : isDarkMode
-                          ? 'bg-gray-800 text-gray-200'
-                          : 'bg-gray-100 text-gray-900'
-                    } ${
-                      message.isUser 
-                        ? 'rounded-br-md' 
-                        : 'rounded-bl-md'
-                    }`}>
-                      <p className="text-sm leading-relaxed">{message.text}</p>
-                    </div>
-                    <div className={`flex items-center gap-1 mt-1 px-1 ${
-                      message.isUser ? 'justify-end' : 'justify-start'
-                    }`}>
+                        ? 'bg-gray-800 text-gray-100 border border-gray-700'
+                        : 'bg-gray-100 text-gray-900 border border-gray-200'
+                    }`}
+                  >
+                    <p className="text-sm whitespace-pre-wrap">{message.text}</p>
+                    <div className="flex items-center justify-between mt-2">
                       <span className={`text-xs ${
-                        isDarkMode ? 'text-gray-500' : 'text-gray-400'
+                        message.isUser 
+                          ? 'text-blue-100' 
+                          : isDarkMode 
+                          ? 'text-gray-400' 
+                          : 'text-gray-500'
                       }`}>
                         {formatTime(message.timestamp)}
                       </span>
                       {message.isUser && (
-                        <div className="flex items-center ml-1">
-                          {message.status === 'sending' && (
-                            <div className="w-2 h-2 bg-gray-400 rounded-full animate-pulse"></div>
-                          )}
-                          {message.status === 'sent' && (
-                            <div className="w-2 h-2 bg-blue-400 rounded-full"></div>
-                          )}
-                          {message.status === 'delivered' && (
-                            <div className="flex gap-0.5">
-                              <div className="w-2 h-2 bg-blue-400 rounded-full"></div>
-                              <div className="w-2 h-2 bg-blue-400 rounded-full"></div>
-                            </div>
-                          )}
-                        </div>
+                        <span className={`text-xs ml-2 ${
+                          message.status === 'sending' 
+                            ? 'text-blue-200' 
+                            : message.status === 'sent' 
+                            ? 'text-blue-100' 
+                            : 'text-green-200'
+                        }`}>
+                          {message.status === 'sending' ? '⏳' : message.status === 'sent' ? '✓' : '✓✓'}
+                        </span>
                       )}
                     </div>
                   </div>
                 </div>
               ))}
-
-              {/* Typing Indicator */}
+              
+              {/* Typing indicator */}
               {isTyping && (
                 <div className="flex justify-start">
-                  <div className={`p-3 rounded-2xl rounded-bl-md ${
-                    isDarkMode ? 'bg-gray-800' : 'bg-gray-100'
+                  <div className={`max-w-[80%] p-3 rounded-2xl ${
+                    isDarkMode
+                      ? 'bg-gray-800 text-gray-100 border border-gray-700'
+                      : 'bg-gray-100 text-gray-900 border border-gray-200'
                   }`}>
                     <div className="flex items-center gap-1">
                       <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce"></div>
@@ -508,52 +468,33 @@ const FloatingChat: React.FC<FloatingChatProps> = ({ isDarkMode }) => {
               
               <div ref={messagesEndRef} />
             </div>
-
+            
             {/* Input */}
             <div className={`p-4 border-t ${
-              isDarkMode ? 'border-gray-700' : 'border-gray-200'
+              isDarkMode ? 'border-gray-700 bg-gray-800/50' : 'border-gray-200 bg-gray-50/50'
             }`}>
-              {/* Email Required Notice */}
-              {waitingForEmail && (
-                <div className={`mb-3 p-3 rounded-lg border-l-4 border-blue-500 ${
-                  isDarkMode ? 'bg-blue-900/20 text-blue-300' : 'bg-blue-50 text-blue-700'
-                }`}>
-                  <p className="text-sm font-medium flex items-center gap-2">
-                    📧 Esperando tu email para continuar...
-                  </p>
-                </div>
-              )}
-              
               <div className="flex items-end gap-2">
-                <textarea
-                  value={newMessage}
-                  onChange={(e) => setNewMessage(e.target.value)}
-                  onKeyPress={handleKeyPress}
-                  placeholder={
-                    waitingForEmail 
-                      ? "Escribe tu email: tu@email.com" 
-                      : "Escribe tu mensaje..."
-                  }
-                  rows={1}
-                  className={`flex-1 resize-none px-4 py-3 rounded-xl border transition-all duration-300 focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
-                    isDarkMode 
-                      ? 'bg-gray-800 border-gray-600 text-white placeholder-gray-400' 
-                      : 'bg-gray-50 border-gray-300 text-gray-900 placeholder-gray-500'
-                  }`}
-                  style={{ maxHeight: '100px' }}
-                />
+                <div className="flex-1">
+                  <textarea
+                    value={newMessage}
+                    onChange={(e) => setNewMessage(e.target.value)}
+                    onKeyPress={handleKeyPress}
+                    placeholder="Escribe tu mensaje..."
+                    className={`w-full px-3 py-2 rounded-lg border resize-none ${
+                      isDarkMode 
+                        ? 'bg-gray-800 border-gray-600 text-white placeholder-gray-400' 
+                        : 'bg-white border-gray-300 text-gray-900 placeholder-gray-500'
+                    } focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent`}
+                    rows={1}
+                    style={{ minHeight: '40px', maxHeight: '120px' }}
+                  />
+                </div>
                 <button
                   onClick={handleSendMessage}
-                  disabled={!newMessage.trim()}
-                  className={`p-3 rounded-xl transition-all duration-300 ${
-                    newMessage.trim()
-                      ? 'bg-gradient-to-r from-blue-600 to-purple-600 text-white hover:shadow-lg transform hover:scale-105'
-                      : isDarkMode
-                        ? 'bg-gray-700 text-gray-500 cursor-not-allowed'
-                        : 'bg-gray-200 text-gray-400 cursor-not-allowed'
-                  }`}
+                  disabled={!newMessage.trim() || isTyping}
+                  className="p-2 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-lg hover:shadow-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  <Send size={18} />
+                  <Send size={16} />
                 </button>
               </div>
             </div>

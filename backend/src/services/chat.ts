@@ -24,8 +24,13 @@ class ChatService {
   private sessions: Map<string, ChatSession> = new Map();
   private autoResponses: AutoResponse[];
   private sessionsFilePath: string;
+  private isEphemeralStorage: boolean;
 
   constructor() {
+    // Detectar si estamos en un entorno con almacenamiento efímero (Railway, Heroku, etc.)
+    this.isEphemeralStorage = Boolean(process.env.NODE_ENV === 'production' && 
+                              (process.env.RAILWAY_ENVIRONMENT_NAME || process.env.HEROKU_APP_NAME));
+    
     // Configurar ruta de persistencia
     this.sessionsFilePath = path.join(process.cwd(), 'data', 'sessions.json');
     
@@ -74,6 +79,10 @@ class ChatService {
 
     console.log('💬 [CHAT] Servicio inicializado con', this.autoResponses.length, 'respuestas automáticas');
     console.log('💬 [CHAT] Sesiones cargadas:', this.sessions.size);
+    
+    if (this.isEphemeralStorage) {
+      console.log('⚠️ [CHAT] Almacenamiento efímero detectado - las sesiones se perderán en reinicios');
+    }
   }
 
   private loadSessions(): void {
@@ -266,7 +275,33 @@ class ChatService {
     console.log('💬 [CHAT] Buscando sesión:', sessionId);
     console.log('💬 [CHAT] Sesiones disponibles:', Array.from(this.sessions.keys()));
     
-    const session = this.sessions.get(sessionId);
+    let session = this.sessions.get(sessionId);
+    
+    // Si la sesión no existe y estamos en almacenamiento efímero, crear una sesión temporal
+    if (!session && this.isEphemeralStorage) {
+      console.log('⚠️ [CHAT] Sesión no encontrada en almacenamiento efímero - creando sesión temporal para admin');
+      
+      // Crear una sesión temporal para el mensaje del admin
+      session = {
+        id: sessionId,
+        clientId: `temp_client_${Date.now()}`,
+        clientInfo: {
+          userAgent: 'Unknown - Ephemeral Recovery',
+          ip: 'Unknown'
+        },
+        startTime: new Date(),
+        status: 'admin_connected',
+        messages: [],
+        isAdminConnected: true,
+        lastActivity: new Date()
+      };
+      
+      this.sessions.set(sessionId, session);
+      
+      // Agregar mensaje explicativo del sistema
+      await this.addMessage(sessionId, '⚠️ Sesión recuperada temporalmente para mensaje administrativo. El historial anterior se perdió debido al reinicio del servidor.', 'bot');
+    }
+    
     if (!session) {
       console.log('💬 [CHAT] Sesión no encontrada para mensaje de admin:', sessionId);
       console.log('💬 [CHAT] Total de sesiones en memoria:', this.sessions.size);
@@ -294,7 +329,14 @@ class ChatService {
   }
 
   getSession(sessionId: string): ChatSession | undefined {
-    return this.sessions.get(sessionId);
+    const session = this.sessions.get(sessionId);
+    
+    // Si no encontramos la sesión y estamos en almacenamiento efímero, informar al usuario
+    if (!session && this.isEphemeralStorage) {
+      console.log('⚠️ [CHAT] Sesión no encontrada en almacenamiento efímero:', sessionId);
+    }
+    
+    return session;
   }
 
   getAllActiveSessions(): ChatSession[] {

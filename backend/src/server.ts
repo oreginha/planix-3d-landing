@@ -48,7 +48,7 @@ const initializeTelegram = async () => {
 };
 
 const app = express();
-const PORT = process.env.PORT || 3001;
+const PORT = process.env.PORT || 3002;
 
 // =========================================
 // CONFIGURACIÓN DE PROXY (DEBE IR PRIMERO)
@@ -84,7 +84,11 @@ if (process.env.RATE_LIMIT_ENABLED === 'true') {
       error: 'rate_limit_exceeded'
     },
     standardHeaders: true,
-    legacyHeaders: false
+    legacyHeaders: false,
+    // Excluir el webhook de Telegram del rate limiting
+    skip: (req) => {
+      return req.path === '/api/chat/telegram/webhook';
+    }
   });
 
   app.use('/api/', limiter);
