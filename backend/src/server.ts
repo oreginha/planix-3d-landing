@@ -85,8 +85,6 @@ if (process.env.RATE_LIMIT_ENABLED === 'true') {
     },
     standardHeaders: true,
     legacyHeaders: false,
-    // Configuración específica para Railway
-    trustProxy: true,
     // Excluir el webhook de Telegram del rate limiting
     skip: (req) => {
       return req.path === '/api/chat/telegram/webhook';
